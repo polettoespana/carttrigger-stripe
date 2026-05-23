@@ -242,6 +242,9 @@
         if ( isOurGateway() ) {
             initPE();
         }
+
+        // Apply theme font class to the WC-injected gateway label.
+        $( '.wc_payment_method.payment_method_' + ctstripe.gateway_id + ' > label' ).addClass( 'font-grotesk' );
     } );
 
 } )( jQuery );
