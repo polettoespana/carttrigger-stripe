@@ -73,7 +73,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
     }
 
     public function enqueue_scripts(): void {
-        if ( ! is_checkout() ) {
+        if ( ! is_checkout() && ! is_cart() ) {
             return;
         }
 
