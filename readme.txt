@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.5.1 =
+* Fix: shortcode [ctstripe_express_checkout] non renderizza nulla nella pagina carrello — Apple Pay/Google Pay funzionano solo nel checkout dove esiste il flusso di pagamento completo.
 
 = 1.5.0 =
 * Fix: pulsanti Express Checkout sparivano dopo aggiornamento quantità nella pagina carrello — aggiunti listener su updated_cart e wc_fragments_refreshed per reinizializzare i container svuotati da WooCommerce.
