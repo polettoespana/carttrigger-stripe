@@ -103,6 +103,15 @@
             eceActive = true;
 
             if ( $( 'form.checkout' ).length ) {
+                // Validate T&C before opening the payment sheet.
+                var $terms = $( '#terms' );
+                if ( $terms.length && ! $terms.is( ':checked' ) ) {
+                    eceEvent.paymentFailed( { reason: 'fail' } );
+                    eceActive = false;
+                    $terms[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
+                    return;
+                }
+
                 // Checkout page: submit WC form; payment confirmed in ajaxComplete.
                 if ( ! isOurGateway() ) {
                     $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )

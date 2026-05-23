@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.4
+Stable tag: 1.5.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.5.5 =
+* Fix: ID stabile per i container ECE nel tema (ctstripe-ece-cart / ctstripe-ece-checkout) — previene la creazione di istanze stripe.elements() multiple dopo il refresh dei fragment WooCommerce, risolvendo i fallimenti Apple Pay dal carrello.
+* Fix: validazione checkbox T&C prima dell'invio del form checkout via ECE — se non accettate, il foglio Apple Pay viene chiuso immediatamente e lo scroll va alla checkbox.
 
 = 1.5.4 =
 * Shortcode: aggiunto attributo checkout_link — testo cliccabile che rimanda al checkout per chi vuole compilare i dati manualmente. Entrambi notice e checkout_link personalizzabili per shortcode.
