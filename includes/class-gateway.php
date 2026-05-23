@@ -217,6 +217,13 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 ],
                 'default' => '2',
             ],
+            'ece_max_rows'       => [
+                'title'       => 'Righe massime pulsanti express',
+                'type'        => 'number',
+                'description' => '<code>0</code> = nessun limite (mostra tutti i metodi, nessun pulsante "Más información"). Valori > 0 limitano le righe visibili.',
+                'default'     => '0',
+                'custom_attributes' => [ 'min' => '0', 'step' => '1' ],
+            ],
             // ── Shortcode (solo per admin_options, non nel form WC standard) ─
             'shortcode_info'     => [
                 'title'       => 'Shortcode pulsanti express',
@@ -288,7 +295,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             [
                 'title'  => 'Express Checkout',
                 'icon'   => 'dashicons-smartphone',
-                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns' ],
+                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns', 'ece_max_rows' ],
             ],
             [
                 'title'     => 'Shortcode pulsanti express',
@@ -369,6 +376,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'title_class'     => trim( $this->get_option( 'title_class', 'font-grotesk' ) ),
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
+            'ece_max_rows'    => (int) $this->get_option( 'ece_max_rows', 0 ),
             'appearance'      => array_filter( [
                 'theme'        => $this->get_option( 'appearance_theme', 'stripe' ),
                 'colorPrimary'    => $this->get_option( 'appearance_color_primary', '' ),

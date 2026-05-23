@@ -75,7 +75,7 @@
         var el    = elems.create( 'expressCheckout', {
             buttonType:   { applePay: 'buy', googlePay: 'buy' },
             buttonHeight: parseInt( ctstripe.ece_height, 10 ) || 44,
-            layout:       { maxColumns: parseInt( ctstripe.ece_columns, 10 ) || 2, maxRows: 0, overflow: 'auto' },
+            layout:       { maxColumns: parseInt( ctstripe.ece_columns, 10 ) || 2, maxRows: parseInt( ctstripe.ece_max_rows, 10 ), overflow: 'auto' },
         } );
 
         el.on( 'ready', function ( event ) {
