@@ -60,9 +60,15 @@ Example with stable ID (recommended to avoid issues after fragment refresh):
 
 ## Apple Pay Domain Verification
 
-The plugin automatically serves the Apple Pay domain association file at `/.well-known/apple-developer-merchantid-domain-association`. Paste the file content in **WooCommerce → Settings → Payments → CartTrigger Stripe → Apple Pay domain verification**.
+The plugin automatically serves the Apple Pay domain association file at `/.well-known/apple-developer-merchantid-domain-association`.
 
-After saving, register your domain in the Stripe Dashboard under **Settings → Payment methods → Apple Pay**.
+1. Go to **WooCommerce → Settings → Payments → CartTrigger Stripe → Apple Pay domain verification**.
+2. Paste the content of the verification file. If Stripe did not generate it for your account, use the default file hosted by Stripe:
+   ```
+   https://stripe.com/files/apple-pay/apple-developer-merchantid-domain-association
+   ```
+3. Save settings — the plugin serves the file automatically at the correct path.
+4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 ## Changelog
 

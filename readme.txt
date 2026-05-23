@@ -35,6 +35,16 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
 7. Configure a Stripe webhook pointing to: `https://yoursite.com/wc-api/ctstripe_webhook`
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
+== Apple Pay Domain Verification ==
+
+To enable Apple Pay, you need to serve a domain verification file provided by Stripe.
+
+1. Go to **WooCommerce → Settings → Payments → CartTrigger Stripe → Apple Pay domain verification**.
+2. Paste the content of the file. If Stripe did not generate it automatically for your account, use the default file hosted by Stripe:
+   `https://stripe.com/files/apple-pay/apple-developer-merchantid-domain-association`
+3. Save settings. The plugin serves the file automatically at `/.well-known/apple-developer-merchantid-domain-association`.
+4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
+
 == Changelog ==
 
 = 1.6.3 =
