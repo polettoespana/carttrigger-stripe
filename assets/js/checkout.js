@@ -14,10 +14,24 @@
     var peMounted   = false;
     var eceActive   = false;
 
+    var appearanceCfg = ctstripe.appearance || {};
     var appearance = {
-        theme:     'stripe',
-        variables: { borderRadius: '4px' },
+        theme:     appearanceCfg.theme || 'stripe',
+        variables: {},
     };
+    var varMap = {
+        colorPrimary:    'colorPrimary',
+        colorBackground: 'colorBackground',
+        colorText:       'colorText',
+        colorDanger:     'colorDanger',
+        fontFamily:      'fontFamily',
+        borderRadius:    'borderRadius',
+    };
+    Object.keys( varMap ).forEach( function ( key ) {
+        if ( appearanceCfg[ key ] ) {
+            appearance.variables[ varMap[ key ] ] = appearanceCfg[ key ];
+        }
+    } );
 
     function cartAmount() {
         return parseInt( ctstripe.cart_amount, 10 );

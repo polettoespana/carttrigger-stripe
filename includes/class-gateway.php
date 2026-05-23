@@ -76,6 +76,59 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'description' => 'Classe applicata al wrapper della descrizione nel box di pagamento. Lascia vuoto per nessuna classe.',
                 'default'     => 'ctstripe-description',
             ],
+            // ── Aspetto Payment Element ──────────────────────────────────────
+            'appearance_theme'        => [
+                'title'   => 'Tema',
+                'type'    => 'select',
+                'options' => [
+                    'stripe' => 'Stripe (default)',
+                    'flat'   => 'Flat (senza ombre)',
+                    'none'   => 'None (solo variabili)',
+                ],
+                'default' => 'stripe',
+            ],
+            'appearance_color_primary'    => [
+                'title'       => 'Colore primario',
+                'type'        => 'text',
+                'description' => 'Colore per focus, bordi attivi, pulsanti (es. <code>#0570de</code> o <code>rgb(5,112,222)</code>).',
+                'default'     => '',
+                'placeholder' => '#0570de',
+            ],
+            'appearance_color_background' => [
+                'title'       => 'Colore sfondo input',
+                'type'        => 'text',
+                'description' => 'Sfondo dei campi di input.',
+                'default'     => '',
+                'placeholder' => '#ffffff',
+            ],
+            'appearance_color_text'       => [
+                'title'       => 'Colore testo',
+                'type'        => 'text',
+                'description' => 'Testo principale nei campi.',
+                'default'     => '',
+                'placeholder' => '#30313d',
+            ],
+            'appearance_color_danger'     => [
+                'title'       => 'Colore errori',
+                'type'        => 'text',
+                'description' => 'Colore per messaggi di errore e bordi non validi.',
+                'default'     => '',
+                'placeholder' => '#df1b41',
+            ],
+            'appearance_font_family'      => [
+                'title'       => 'Font family',
+                'type'        => 'text',
+                'description' => 'Es. <code>Inter, system-ui, sans-serif</code>. Lascia vuoto per usare il font di sistema Stripe.',
+                'default'     => '',
+                'placeholder' => '',
+            ],
+            'appearance_border_radius'    => [
+                'title'       => 'Border radius',
+                'type'        => 'text',
+                'description' => 'Es. <code>4px</code>, <code>8px</code>, <code>0px</code>.',
+                'default'     => '4px',
+                'placeholder' => '4px',
+            ],
             // ── Configurazione ───────────────────────────────────────────────
             'payment_method_config_id' => [
                 'title'       => 'Payment Method Configuration ID',
@@ -169,6 +222,11 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'fields' => [ 'title', 'title_class', 'description', 'description_class' ],
             ],
             [
+                'title'  => 'Aspetto Payment Element',
+                'icon'   => 'dashicons-art',
+                'fields' => [ 'appearance_theme', 'appearance_color_primary', 'appearance_color_background', 'appearance_color_text', 'appearance_color_danger', 'appearance_font_family', 'appearance_border_radius' ],
+            ],
+            [
                 'title'  => 'Configurazione pagamento',
                 'icon'   => 'dashicons-admin-generic',
                 'fields' => [ 'payment_method_config_id', 'capture_mode' ],
@@ -255,6 +313,15 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
+            'appearance'      => array_filter( [
+                'theme'           => $this->get_option( 'appearance_theme', 'stripe' ),
+                'colorPrimary'    => $this->get_option( 'appearance_color_primary', '' ),
+                'colorBackground' => $this->get_option( 'appearance_color_background', '' ),
+                'colorText'       => $this->get_option( 'appearance_color_text', '' ),
+                'colorDanger'     => $this->get_option( 'appearance_color_danger', '' ),
+                'fontFamily'      => $this->get_option( 'appearance_font_family', '' ),
+                'borderRadius'    => $this->get_option( 'appearance_border_radius', '4px' ),
+            ] ),
         ] );
     }
 
