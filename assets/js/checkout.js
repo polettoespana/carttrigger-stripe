@@ -6,13 +6,13 @@
         return;
     }
 
-    var stripe     = Stripe( ctstripe.publishable_key );
-    var eceEl      = null;  // Express Checkout Element instance
-    var eceElems   = null;  // stripe.elements() for ECE (mode-based)
-    var peElems    = null;  // stripe.elements() for Payment Element (mode-based)
-    var peInstance = null;
-    var peMounted  = false;
-    var eceActive  = false; // true when ECE triggered the form submission
+    var stripe      = Stripe( ctstripe.publishable_key );
+    var eceMounted  = {}; // containerId → stripe.elements() instance
+    var eceElems    = null; // elements instance that triggered ECE confirm
+    var peElems     = null;
+    var peInstance  = null;
+    var peMounted   = false;
+    var eceActive   = false;
 
     var appearance = {
         theme:     'stripe',
@@ -57,26 +57,26 @@
             return;
         }
 
-        eceElems = stripe.elements( elementsParams() );
-
-        eceEl = eceElems.create( 'expressCheckout', {
+        var elems = stripe.elements( elementsParams() );
+        var el    = elems.create( 'expressCheckout', {
             buttonType: { applePay: 'buy', googlePay: 'buy' },
         } );
 
-        eceEl.on( 'ready', function ( event ) {
+        el.on( 'ready', function ( event ) {
             var hasButtons = event.availablePaymentMethods &&
                 Object.values( event.availablePaymentMethods ).some( Boolean );
             container.style.display = hasButtons ? '' : 'none';
 
-            // Show the separator inside the payment box only if gateway is selected.
             if ( hasButtons ) {
                 $( '#ctstripe-separator' ).show();
             }
         } );
 
-        eceEl.on( 'confirm', function () {
+        el.on( 'confirm', function () {
+            // Capture which elements instance triggered the confirmation.
+            eceElems = elems;
+
             if ( ! isOurGateway() ) {
-                // Force-select our gateway and submit.
                 $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
                     .prop( 'checked', true )
                     .trigger( 'change' );
@@ -85,7 +85,8 @@
             $( 'form.checkout' ).submit();
         } );
 
-        eceEl.mount( '#' + containerId );
+        el.mount( '#' + containerId );
+        eceMounted[ containerId ] = elems;
     }
 
     // ── Payment Element ───────────────────────────────────────────────────────
@@ -178,7 +179,7 @@
         }
     } );
 
-    // ── Keep amount in sync when cart updates ─────────────────────────────────
+    // ── Keep amount in sync + re-mount after WC refreshes checkout HTML ───────
 
     $( document.body ).on( 'updated_checkout', function ( event, data ) {
         var newAmount = data && data.ctstripe_cart_amount
@@ -187,13 +188,27 @@
 
         if ( newAmount ) {
             ctstripe.cart_amount = newAmount;
-            if ( eceElems ) {
-                eceElems.update( { amount: newAmount } );
-            }
-            if ( peElems ) {
-                peElems.update( { amount: newAmount } );
-            }
         }
+
+        // WC replaces the payment-fields HTML on every update — reset PE so it
+        // gets re-mounted into the new (empty) container.
+        peMounted  = false;
+        peElems    = null;
+        peInstance = null;
+        if ( isOurGateway() ) {
+            initPE();
+        }
+
+        // Re-mount ECE containers that were emptied by WC (no iframe inside).
+        // Shortcode containers outside the payment box survive the refresh.
+        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( el ) {
+            if ( ! el.querySelector( 'iframe' ) ) {
+                delete eceMounted[ el.id ];
+                initECE( el.id );
+            } else if ( newAmount && eceMounted[ el.id ] ) {
+                eceMounted[ el.id ].update( { amount: newAmount } );
+            }
+        } );
     } );
 
     // ── Gateway selection ─────────────────────────────────────────────────────
@@ -207,7 +222,6 @@
     // ── Init on load ──────────────────────────────────────────────────────────
 
     $( function () {
-        // Mount ECE in every container marked with data-ctstripe-ece.
         document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( el ) {
             initECE( el.id );
         } );
