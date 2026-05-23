@@ -31,6 +31,30 @@ add_action( 'plugins_loaded', function () {
 
     ( new CTStripe_Webhook() )->init();
 
+    // Allow Stripe domains in Content-Security-Policy.
+    add_filter( 'wp_headers', function ( $headers ) {
+        $stripe_domains = implode( ' ', [
+            'https://*.stripe.com',
+            'https://*.stripecdn.com',
+            'https://*.stripe.network',
+            'https://*.hcaptcha.com',
+        ] );
+
+        if ( isset( $headers['Content-Security-Policy'] ) ) {
+            $csp = $headers['Content-Security-Policy'];
+            foreach ( [ 'frame-src', 'script-src', 'connect-src', 'img-src', 'style-src' ] as $directive ) {
+                if ( strpos( $csp, $directive ) !== false ) {
+                    $csp = preg_replace( '/(' . preg_quote( $directive, '/' ) . '[^;]*)/', '$1 ' . $stripe_domains, $csp );
+                } else {
+                    $csp .= '; ' . $directive . ' ' . $stripe_domains;
+                }
+            }
+            $headers['Content-Security-Policy'] = $csp;
+        }
+
+        return $headers;
+    } );
+
     // Render express checkout buttons based on gateway settings.
     add_action( 'woocommerce_before_checkout_form', function () {
         $gateways  = WC()->payment_gateways()->payment_gateways();
