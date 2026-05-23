@@ -368,13 +368,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
     // ── Checkout rendering ────────────────────────────────────────────────────
 
     public function payment_fields(): void {
-        $title_class = trim( $this->get_option( 'title_class', 'ctstripe-title' ) );
         $desc_class  = trim( $this->get_option( 'description_class', 'ctstripe-description' ) );
 
-        if ( $this->title ) {
-            $attr = $title_class ? ' class="' . esc_attr( $title_class ) . '"' : '';
-            echo '<p' . $attr . '>' . esc_html( $this->title ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        }
         if ( $this->description ) {
             $attr = $desc_class ? ' class="' . esc_attr( $desc_class ) . '"' : '';
             echo '<p' . $attr . '>' . esc_html( $this->description ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
