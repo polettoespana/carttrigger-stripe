@@ -1,0 +1,202 @@
+/* ─────────────────────────────────────────────
+   CartTrigger – Stripe  |  Admin styles
+   ───────────────────────────────────────────── */
+
+.ctstripe-wrap {
+    max-width: 900px;
+}
+
+/* ── Header ── */
+.ctstripe-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e8eaed;
+}
+
+.ctstripe-header h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1d2327;
+}
+
+.ctstripe-version {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background: #f0f4ff;
+    color: #2271b1;
+    border: 1px solid #c5d4f5;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: 600;
+    letter-spacing: .5px;
+}
+
+/* ── Cards ── */
+.ctstripe-card {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+}
+
+.ctstripe-card h2 {
+    margin: 0 0 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0f0f1;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #50575e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ctstripe-card h2 .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #2271b1;
+}
+
+/* ── Form table ── */
+.ctstripe-card .form-table {
+    margin-top: 0;
+}
+
+.ctstripe-card .form-table th {
+    width: 220px;
+    padding: 14px 16px 14px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d2327;
+    vertical-align: middle;
+}
+
+.ctstripe-card .form-table td {
+    padding: 12px 0;
+    vertical-align: middle;
+}
+
+.ctstripe-card .form-table tr {
+    border-bottom: 1px solid #f6f7f7;
+}
+
+.ctstripe-card .form-table tr:last-child {
+    border-bottom: none;
+}
+
+.ctstripe-card .form-table .description {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #8c8f94;
+    line-height: 1.5;
+}
+
+/* ── Checkbox rows ── */
+.ctstripe-card .form-table label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: #1d2327;
+    cursor: pointer;
+}
+
+.ctstripe-card .form-table label input[type="checkbox"] {
+    margin: 2px 0 0;
+    flex-shrink: 0;
+}
+
+/* ── Inputs ── */
+.ctstripe-card input[type="text"],
+.ctstripe-card input[type="password"],
+.ctstripe-card input[type="number"] {
+    border-radius: 4px;
+    border-color: #c3c4c7;
+    height: 36px;
+    line-height: 36px;
+}
+
+.ctstripe-card input[type="text"]:focus,
+.ctstripe-card input[type="password"]:focus,
+.ctstripe-card input[type="number"]:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+}
+
+.ctstripe-card select {
+    border-radius: 4px;
+    height: 36px;
+    border-color: #c3c4c7;
+}
+
+.ctstripe-card textarea {
+    border-radius: 4px;
+    border-color: #c3c4c7;
+    resize: vertical;
+}
+
+.ctstripe-card textarea:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+/* ── Shortcode docs card ── */
+.ctstripe-card-shortcode p {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #3c434a;
+    line-height: 1.6;
+}
+
+.ctstripe-card-shortcode code {
+    background: #f0f4ff;
+    color: #2271b1;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.ctstripe-card-shortcode table.widefat {
+    margin-top: 8px;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.ctstripe-card-shortcode table.widefat th,
+.ctstripe-card-shortcode table.widefat td {
+    padding: 7px 12px;
+    border: 1px solid #e0e0e0;
+    color: #3c434a;
+}
+
+.ctstripe-card-shortcode table.widefat th {
+    background: #f6f7f7;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+/* ── Submit button area ── */
+.ctstripe-wrap .submit {
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.ctstripe-wrap .submit .button-primary {
+    height: 38px;
+    line-height: 36px;
+    padding: 0 20px;
+    font-size: 13px;
+}

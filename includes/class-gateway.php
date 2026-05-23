@@ -18,6 +18,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
+        add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
 
         // Keep cart amount in sync when WC recalculates order review.
         add_filter( 'woocommerce_update_order_review_fragments', [ $this, 'add_cart_amount_fragment' ] );
@@ -25,21 +26,12 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
     public function init_form_fields(): void {
         $this->form_fields = [
+            // ── Credenziali ──────────────────────────────────────────────────
             'enabled'            => [
                 'title'   => 'Abilita',
                 'type'    => 'checkbox',
                 'label'   => 'Abilita CartTrigger Stripe',
                 'default' => 'no',
-            ],
-            'title'              => [
-                'title'   => 'Titolo',
-                'type'    => 'text',
-                'default' => 'Paga con carta o altro metodo',
-            ],
-            'description'        => [
-                'title'   => 'Descrizione',
-                'type'    => 'textarea',
-                'default' => '',
             ],
             'publishable_key'    => [
                 'title' => 'Publishable Key',
@@ -61,6 +53,30 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'default'     => '',
                 'css'         => 'height:80px;font-family:monospace;font-size:11px;',
             ],
+            // ── Aspetto nel checkout ─────────────────────────────────────────
+            'title'              => [
+                'title'   => 'Titolo',
+                'type'    => 'text',
+                'default' => 'Paga con carta o altro metodo',
+            ],
+            'title_class'        => [
+                'title'       => 'Classe CSS titolo',
+                'type'        => 'text',
+                'description' => 'Classe applicata al wrapper del titolo nel box di pagamento. Lascia vuoto per nessuna classe.',
+                'default'     => 'ctstripe-title',
+            ],
+            'description'        => [
+                'title'   => 'Descrizione',
+                'type'    => 'textarea',
+                'default' => '',
+            ],
+            'description_class'  => [
+                'title'       => 'Classe CSS descrizione',
+                'type'        => 'text',
+                'description' => 'Classe applicata al wrapper della descrizione nel box di pagamento. Lascia vuoto per nessuna classe.',
+                'default'     => 'ctstripe-description',
+            ],
+            // ── Configurazione ───────────────────────────────────────────────
             'payment_method_config_id' => [
                 'title'       => 'Payment Method Configuration ID',
                 'type'        => 'text',
@@ -76,30 +92,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 ],
                 'default' => 'automatic',
             ],
-            'shortcode_info'     => [
-                'title'       => 'Shortcode pulsanti express',
-                'type'        => 'title',
-                'description' => '
-                    <p>Usa lo shortcode <code>[ctstripe_express_checkout]</code> per posizionare i pulsanti Apple Pay / Google Pay ovunque nel tema o nelle pagine WordPress.</p>
-                    <table class="widefat" style="margin-top:8px;border-collapse:collapse;">
-                        <thead><tr>
-                            <th style="padding:6px 10px;border:1px solid #ddd;background:#f9f9f9;">Attributo</th>
-                            <th style="padding:6px 10px;border:1px solid #ddd;background:#f9f9f9;">Default</th>
-                            <th style="padding:6px 10px;border:1px solid #ddd;background:#f9f9f9;">Descrizione</th>
-                        </tr></thead>
-                        <tbody>
-                            <tr><td style="padding:6px 10px;border:1px solid #ddd;"><code>class</code></td><td style="padding:6px 10px;border:1px solid #ddd;">—</td><td style="padding:6px 10px;border:1px solid #ddd;">Classe CSS aggiuntiva sul wrapper</td></tr>
-                            <tr><td style="padding:6px 10px;border:1px solid #ddd;"><code>style</code></td><td style="padding:6px 10px;border:1px solid #ddd;">—</td><td style="padding:6px 10px;border:1px solid #ddd;">Stile inline sul wrapper</td></tr>
-                        </tbody>
-                    </table>
-                    <p style="margin-top:8px;"><strong>Esempi:</strong><br>
-                        <code>[ctstripe_express_checkout]</code><br>
-                        <code>[ctstripe_express_checkout class="my-buttons" style="margin-bottom:24px;"]</code>
-                    </p>
-                    <p>Per inserirlo via PHP (es. <code>functions.php</code>):<br>
-                        <code>echo do_shortcode(\'[ctstripe_express_checkout class="my-class"]\');</code>
-                    </p>',
-            ],
+            // ── Express Checkout ─────────────────────────────────────────────
             'express_in_payment_box' => [
                 'title'   => 'Pulsanti express nel box pagamento',
                 'type'    => 'checkbox',
@@ -107,10 +100,10 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'default' => 'yes',
             ],
             'ece_button_height'  => [
-                'title'       => 'Altezza pulsanti express (px)',
-                'type'        => 'number',
-                'description' => 'Valore tra 40 e 55. Default: 44.',
-                'default'     => '44',
+                'title'             => 'Altezza pulsanti express (px)',
+                'type'              => 'number',
+                'description'       => 'Valore tra 40 e 55. Default: 44.',
+                'default'           => '44',
                 'custom_attributes' => [ 'min' => '40', 'max' => '55', 'step' => '1' ],
             ],
             'ece_columns'        => [
@@ -122,8 +115,107 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 ],
                 'default' => '2',
             ],
+            // ── Shortcode (solo per admin_options, non nel form WC standard) ─
+            'shortcode_info'     => [
+                'title'       => 'Shortcode pulsanti express',
+                'type'        => 'title',
+                'description' => '
+                    <p>Usa lo shortcode <code>[ctstripe_express_checkout]</code> per posizionare i pulsanti Apple Pay / Google Pay ovunque nel tema o nelle pagine WordPress.</p>
+                    <table class="widefat" style="border-collapse:collapse;">
+                        <thead><tr>
+                            <th>Attributo</th>
+                            <th>Default</th>
+                            <th>Descrizione</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr><td><code>class</code></td><td>—</td><td>Classe CSS aggiuntiva sul wrapper</td></tr>
+                            <tr><td><code>style</code></td><td>—</td><td>Stile inline sul wrapper</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:12px;"><strong>Esempi:</strong><br>
+                        <code>[ctstripe_express_checkout]</code><br>
+                        <code>[ctstripe_express_checkout class="my-buttons" style="margin-bottom:24px;"]</code>
+                    </p>
+                    <p>Via PHP (es. <code>functions.php</code>):<br>
+                        <code>echo do_shortcode(\'[ctstripe_express_checkout class="my-class"]\');</code>
+                    </p>',
+            ],
         ];
     }
+
+    // ── Admin ─────────────────────────────────────────────────────────────────
+
+    public function enqueue_admin_scripts( string $hook ): void {
+        if ( 'woocommerce_page_wc-settings' !== $hook ) {
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( ( $_GET['section'] ?? '' ) !== $this->id ) {
+            return;
+        }
+        wp_enqueue_style( 'ctstripe-admin', CTSTRIPE_URL . 'assets/css/admin.css', [], CTSTRIPE_VERSION );
+    }
+
+    public function admin_options(): void {
+        $groups = [
+            [
+                'title'  => 'Credenziali',
+                'icon'   => 'dashicons-lock',
+                'fields' => [ 'enabled', 'publishable_key', 'secret_key', 'webhook_secret', 'apple_pay_domain_verification' ],
+            ],
+            [
+                'title'  => 'Aspetto nel checkout',
+                'icon'   => 'dashicons-visibility',
+                'fields' => [ 'title', 'title_class', 'description', 'description_class' ],
+            ],
+            [
+                'title'  => 'Configurazione pagamento',
+                'icon'   => 'dashicons-admin-generic',
+                'fields' => [ 'payment_method_config_id', 'capture_mode' ],
+            ],
+            [
+                'title'  => 'Express Checkout',
+                'icon'   => 'dashicons-smartphone',
+                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns' ],
+            ],
+            [
+                'title'     => 'Shortcode pulsanti express',
+                'icon'      => 'dashicons-shortcode',
+                'shortcode' => true,
+            ],
+        ];
+
+        echo '<div class="ctstripe-wrap">';
+        echo '<div class="ctstripe-header">';
+        echo '<h1>' . esc_html( $this->method_title ) . '</h1>';
+        echo '<span class="ctstripe-version">v' . esc_html( CTSTRIPE_VERSION ) . '</span>';
+        echo '</div>';
+
+        foreach ( $groups as $group ) {
+            $extra_class = ! empty( $group['shortcode'] ) ? ' ctstripe-card-shortcode' : '';
+            echo '<div class="ctstripe-card' . esc_attr( $extra_class ) . '">';
+            echo '<h2><span class="dashicons ' . esc_attr( $group['icon'] ) . '"></span>' . esc_html( $group['title'] ) . '</h2>';
+
+            if ( ! empty( $group['shortcode'] ) ) {
+                $field = $this->form_fields['shortcode_info'] ?? [];
+                echo wp_kses_post( $field['description'] ?? '' );
+            } else {
+                $subset = [];
+                foreach ( $group['fields'] as $key ) {
+                    if ( isset( $this->form_fields[ $key ] ) ) {
+                        $subset[ $key ] = $this->form_fields[ $key ];
+                    }
+                }
+                echo '<table class="form-table">' . $this->generate_settings_html( $subset, false ) . '</table>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            }
+
+            echo '</div>';
+        }
+
+        echo '</div>';
+    }
+
+    // ── Frontend scripts ──────────────────────────────────────────────────────
 
     public function enqueue_scripts(): void {
         if ( ! is_checkout() && ! is_cart() && ! is_page() ) {
@@ -166,9 +258,19 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         ] );
     }
 
+    // ── Checkout rendering ────────────────────────────────────────────────────
+
     public function payment_fields(): void {
+        $title_class = trim( $this->get_option( 'title_class', 'ctstripe-title' ) );
+        $desc_class  = trim( $this->get_option( 'description_class', 'ctstripe-description' ) );
+
+        if ( $this->title ) {
+            $attr = $title_class ? ' class="' . esc_attr( $title_class ) . '"' : '';
+            echo '<p' . $attr . '>' . esc_html( $this->title ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
         if ( $this->description ) {
-            echo '<p>' . esc_html( $this->description ) . '</p>';
+            $attr = $desc_class ? ' class="' . esc_attr( $desc_class ) . '"' : '';
+            echo '<p' . $attr . '>' . esc_html( $this->description ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         }
         if ( 'yes' === $this->get_option( 'express_in_payment_box', 'yes' ) ) {
             echo '<div id="ctstripe-express-checkout-element" data-ctstripe-ece></div>';
@@ -177,6 +279,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         echo '<div id="ctstripe-payment-element" style="min-height:40px;"></div>';
         echo '<div id="ctstripe-errors" style="color:#cc0000;margin-top:8px;"></div>';
     }
+
+    // ── Payment processing ────────────────────────────────────────────────────
 
     public function process_payment( $order_id ): array {
         $order = wc_get_order( $order_id );
@@ -187,7 +291,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'amount'         => $this->get_stripe_amount( (float) $order->get_total(), $order->get_currency() ),
                 'currency'       => strtolower( $order->get_currency() ),
                 'capture_method' => $this->get_option( 'capture_mode', 'automatic' ),
-                'automatic_payment_methods' => [ 'enabled' => 'true' ],
+                'automatic_payment_methods' => [ 'enabled' => true ],
                 'metadata'       => [ 'order_id' => $order->get_id() ],
             ];
 
@@ -262,6 +366,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             return new WP_Error( 'refund_failed', $e->getMessage() );
         }
     }
+
+    // ── Utilities ─────────────────────────────────────────────────────────────
 
     public function get_api(): CTStripe_API {
         return new CTStripe_API( $this->get_option( 'secret_key' ) );
