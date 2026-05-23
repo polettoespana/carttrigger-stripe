@@ -24,13 +24,17 @@
     }
 
     function elementsParams() {
-        return {
+        var params = {
             mode:       'payment',
-            amount:     cartAmount() || 100, // fallback to avoid Stripe rejecting amount=0
+            amount:     cartAmount() || 100,
             currency:   ctstripe.cart_currency || 'eur',
             locale:     ctstripe.locale || 'auto',
             appearance: appearance,
         };
+        if ( ctstripe.pmc_id ) {
+            params.paymentMethodConfiguration = ctstripe.pmc_id;
+        }
+        return params;
     }
 
     function isOurGateway() {

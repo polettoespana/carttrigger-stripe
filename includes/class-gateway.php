@@ -69,6 +69,30 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 ],
                 'default' => 'automatic',
             ],
+            'shortcode_info'     => [
+                'title'       => 'Shortcode pulsanti express',
+                'type'        => 'title',
+                'description' => '
+                    <p>Usa lo shortcode <code>[ctstripe_express_checkout]</code> per posizionare i pulsanti Apple Pay / Google Pay ovunque nel tema o nelle pagine WordPress.</p>
+                    <table class="widefat" style="margin-top:8px;border-collapse:collapse;">
+                        <thead><tr>
+                            <th style="padding:6px 10px;border:1px solid #ddd;background:#f9f9f9;">Attributo</th>
+                            <th style="padding:6px 10px;border:1px solid #ddd;background:#f9f9f9;">Default</th>
+                            <th style="padding:6px 10px;border:1px solid #ddd;background:#f9f9f9;">Descrizione</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr><td style="padding:6px 10px;border:1px solid #ddd;"><code>class</code></td><td style="padding:6px 10px;border:1px solid #ddd;">—</td><td style="padding:6px 10px;border:1px solid #ddd;">Classe CSS aggiuntiva sul wrapper</td></tr>
+                            <tr><td style="padding:6px 10px;border:1px solid #ddd;"><code>style</code></td><td style="padding:6px 10px;border:1px solid #ddd;">—</td><td style="padding:6px 10px;border:1px solid #ddd;">Stile inline sul wrapper</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:8px;"><strong>Esempi:</strong><br>
+                        <code>[ctstripe_express_checkout]</code><br>
+                        <code>[ctstripe_express_checkout class="my-buttons" style="margin-bottom:24px;"]</code>
+                    </p>
+                    <p>Per inserirlo via PHP (es. <code>functions.php</code>):<br>
+                        <code>echo do_shortcode(\'[ctstripe_express_checkout class="my-class"]\');</code>
+                    </p>',
+            ],
             'express_in_payment_box' => [
                 'title'   => 'Pulsanti express nel box pagamento',
                 'type'    => 'checkbox',
@@ -113,6 +137,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'gateway_id'      => $this->id,
             'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
+            'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
         ] );
     }
 
