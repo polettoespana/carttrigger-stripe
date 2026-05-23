@@ -38,13 +38,15 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'type'  => 'text',
             ],
             'secret_key'         => [
-                'title' => 'Secret Key',
-                'type'  => 'password',
+                'title'             => 'Secret Key',
+                'type'              => 'password',
+                'custom_attributes' => [ 'autocomplete' => 'new-password' ],
             ],
             'webhook_secret'     => [
-                'title'       => 'Webhook Secret',
-                'type'        => 'password',
-                'description' => 'Signing secret del webhook Stripe (whsec_…). Endpoint: ' . home_url( '/wc-api/ctstripe_webhook' ),
+                'title'             => 'Webhook Secret',
+                'type'              => 'password',
+                'description'       => 'Signing secret del webhook Stripe (whsec_…). Endpoint: ' . home_url( '/wc-api/ctstripe_webhook' ),
+                'custom_attributes' => [ 'autocomplete' => 'new-password' ],
             ],
             'apple_pay_domain_verification' => [
                 'title'       => 'Apple Pay – File di verifica dominio',
@@ -58,6 +60,12 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'title'   => 'Titolo',
                 'type'    => 'text',
                 'default' => 'Paga con carta o altro metodo',
+            ],
+            'title_class'        => [
+                'title'       => 'Classe CSS titolo',
+                'type'        => 'text',
+                'description' => 'Classe/e CSS applicate al label del metodo di pagamento nel checkout.',
+                'default'     => 'font-grotesk',
             ],
             'description'        => [
                 'title'   => 'Descrizione',
@@ -260,7 +268,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             [
                 'title'  => 'Aspetto nel checkout',
                 'icon'   => 'dashicons-visibility',
-                'fields' => [ 'title', 'description', 'description_class' ],
+                'fields' => [ 'title', 'title_class', 'description', 'description_class' ],
             ],
             [
                 'title'  => 'Aspetto Payment Element',
@@ -358,6 +366,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
+            'title_class'     => trim( $this->get_option( 'title_class', 'font-grotesk' ) ),
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
             'appearance'      => array_filter( [
