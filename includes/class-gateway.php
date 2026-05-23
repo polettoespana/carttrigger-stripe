@@ -516,12 +516,22 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
         $order = wc_create_order( [ 'customer_id' => get_current_user_id() ] );
 
-        // Products.
+        // Products — copy cart line totals directly so discounts are preserved.
         foreach ( WC()->cart->get_cart() as $item ) {
             $order->add_product(
                 $item['data'],
                 $item['quantity'],
-                [ 'variation' => $item['variation'] ?? [] ]
+                [
+                    'variation'    => $item['variation'] ?? [],
+                    'subtotal'     => $item['line_subtotal'],
+                    'subtotal_tax' => $item['line_subtotal_tax'],
+                    'total'        => $item['line_total'],
+                    'total_tax'    => $item['line_tax'],
+                    'taxes'        => [
+                        'subtotal' => $item['line_tax_data']['subtotal'] ?? [],
+                        'total'    => $item['line_tax_data']['total'] ?? [],
+                    ],
+                ]
             );
         }
 
@@ -543,9 +553,18 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             }
         }
 
-        // Coupons.
+        // Coupons — add as items with pre-computed amounts from cart (not re-evaluated).
+        $coupon_discounts     = WC()->cart->get_coupon_discount_totals();
+        $coupon_discount_taxes = WC()->cart->get_coupon_discount_tax_totals();
         foreach ( WC()->cart->get_applied_coupons() as $code ) {
-            $order->apply_coupon( wc_format_coupon_code( $code ) );
+            $code        = wc_format_coupon_code( $code );
+            $coupon_item = new WC_Order_Item_Coupon();
+            $coupon_item->set_props( [
+                'code'         => $code,
+                'discount'     => $coupon_discounts[ $code ] ?? 0,
+                'discount_tax' => $coupon_discount_taxes[ $code ] ?? 0,
+            ] );
+            $order->add_item( $coupon_item );
         }
 
         // Billing address (from Apple Pay / Google Pay).

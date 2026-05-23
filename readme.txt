@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.5.7 =
+* Fix: coupon non applicato nell'ordine creato via AJAX da Express Checkout fuori dal checkout — i totali di riga vengono ora copiati direttamente dal carrello (stesso approccio di WC_Checkout::create_order), evitando il ricalcolo che ignorava gli sconti.
 
 = 1.5.6 =
 * Fix: testo default checkout_link accorciato in "Para otros datos, ve al checkout." per evitare overflow nel box ECE.
