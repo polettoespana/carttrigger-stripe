@@ -195,8 +195,8 @@
     // ── Keep amount in sync + re-mount after WC refreshes checkout HTML ───────
 
     $( document.body ).on( 'updated_checkout', function ( event, data ) {
-        var newAmount = data && data.ctstripe_cart_amount
-            ? parseInt( data.ctstripe_cart_amount, 10 )
+        var newAmount = data && data.fragments && data.fragments['ctstripe_cart_amount']
+            ? parseInt( data.fragments['ctstripe_cart_amount'], 10 )
             : null;
 
         if ( newAmount ) {
