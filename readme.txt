@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.4.6
+Stable tag: 1.4.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.4.7 =
+* Fix: sincronizzazione importo carrello dopo applicazione coupon (leggeva data.ctstripe_cart_amount invece di data.fragments['ctstripe_cart_amount']).
 
 = 1.4.6 =
 * Aggiunto header CORS Access-Control-Allow-Origin per domini Stripe CDN.
