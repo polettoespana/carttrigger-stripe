@@ -112,6 +112,24 @@
                     return;
                 }
 
+                // Populate WC billing fields from Apple Pay billingDetails so WC
+                // validation doesn't reject the form for empty required fields.
+                var eceBilling  = event.billingDetails || {};
+                var eceAddress  = eceBilling.address || {};
+                var eceNameParts = ( eceBilling.name || '' ).split( ' ' );
+                var eceFirst    = eceNameParts.shift() || '';
+                var eceLast     = eceNameParts.join( ' ' );
+                if ( eceFirst )                 { $( '#billing_first_name' ).val( eceFirst ); }
+                if ( eceLast )                  { $( '#billing_last_name' ).val( eceLast ); }
+                if ( eceBilling.email )         { $( '#billing_email' ).val( eceBilling.email ); }
+                if ( eceBilling.phone )         { $( '#billing_phone' ).val( eceBilling.phone ); }
+                if ( eceAddress.line1 )         { $( '#billing_address_1' ).val( eceAddress.line1 ); }
+                if ( eceAddress.line2 )         { $( '#billing_address_2' ).val( eceAddress.line2 ); }
+                if ( eceAddress.city )          { $( '#billing_city' ).val( eceAddress.city ); }
+                if ( eceAddress.postal_code )   { $( '#billing_postcode' ).val( eceAddress.postal_code ); }
+                if ( eceAddress.country )       { $( '#billing_country' ).val( eceAddress.country ).trigger( 'change' ); }
+                if ( eceAddress.state )         { $( '#billing_state' ).val( eceAddress.state ); }
+
                 // Checkout page: submit WC form; payment confirmed in ajaxComplete.
                 if ( ! isOurGateway() ) {
                     $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
