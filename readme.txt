@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.4.4
+Stable tag: 1.4.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.4.5 =
+* Aggiunta impostazione "Righe massime pulsanti express": 0 = nessun limite (nessun pulsante "Más información"), valori > 0 limitano le righe visibili.
 
 = 1.4.4 =
 * Ripristinato campo "Classe CSS titolo" con default font-grotesk, applicato al label WC via JS.
