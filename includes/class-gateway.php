@@ -106,6 +106,22 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'label'   => 'Mostra Apple Pay / Google Pay dentro il box metodo di pagamento',
                 'default' => 'yes',
             ],
+            'ece_button_height'  => [
+                'title'       => 'Altezza pulsanti express (px)',
+                'type'        => 'number',
+                'description' => 'Valore tra 40 e 55. Default: 44.',
+                'default'     => '44',
+                'custom_attributes' => [ 'min' => '40', 'max' => '55', 'step' => '1' ],
+            ],
+            'ece_columns'        => [
+                'title'   => 'Layout pulsanti express',
+                'type'    => 'select',
+                'options' => [
+                    '2' => 'Affiancati (2 colonne)',
+                    '1' => 'In colonna (1 per riga)',
+                ],
+                'default' => '2',
+            ],
         ];
     }
 
@@ -145,6 +161,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
+            'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
+            'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
         ] );
     }
 

@@ -59,7 +59,9 @@
 
         var elems = stripe.elements( elementsParams() );
         var el    = elems.create( 'expressCheckout', {
-            buttonType: { applePay: 'buy', googlePay: 'buy' },
+            buttonType:   { applePay: 'buy', googlePay: 'buy' },
+            buttonHeight: ctstripe.ece_height || 44,
+            layout:       { maxColumns: ctstripe.ece_columns || 2, maxRows: 1, overflow: 'never' },
         } );
 
         el.on( 'ready', function ( event ) {
