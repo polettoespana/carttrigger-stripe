@@ -6,39 +6,98 @@
         return;
     }
 
-    var stripe          = Stripe( ctstripe.publishable_key );
-    var elements        = null;
-    var paymentElement  = null;
-    var clientSecret    = null;
-    var intentId        = null;
-    var mounted         = false;
+    var stripe     = Stripe( ctstripe.publishable_key );
+    var eceEl      = null;  // Express Checkout Element instance
+    var eceElems   = null;  // stripe.elements() for ECE (mode-based)
+    var peElems    = null;  // stripe.elements() for Payment Element (mode-based)
+    var peInstance = null;
+    var peMounted  = false;
+    var eceActive  = false; // true when ECE triggered the form submission
 
-    function isOurGatewaySelected() {
+    var appearance = {
+        theme:     'stripe',
+        variables: { borderRadius: '4px' },
+    };
+
+    function cartAmount() {
+        return parseInt( ctstripe.cart_amount, 10 );
+    }
+
+    function elementsParams() {
+        return {
+            mode:       'payment',
+            amount:     cartAmount(),
+            currency:   ctstripe.cart_currency,
+            locale:     ctstripe.locale || 'auto',
+            appearance: appearance,
+        };
+    }
+
+    function isOurGateway() {
         return $( 'input[name="payment_method"]:checked' ).val() === ctstripe.gateway_id;
     }
 
-    function mountPaymentElement( secret ) {
-        clientSecret = secret;
+    function showError( msg ) {
+        $( '#ctstripe-errors' ).text( msg );
+    }
 
-        if ( mounted ) {
+    function clearError() {
+        $( '#ctstripe-errors' ).text( '' );
+    }
+
+    // ── Express Checkout Element ──────────────────────────────────────────────
+
+    function initECE( containerId ) {
+        var container = document.getElementById( containerId );
+        if ( ! container ) {
             return;
         }
 
+        eceElems = stripe.elements( elementsParams() );
+
+        eceEl = eceElems.create( 'expressCheckout', {
+            buttonType: { applePay: 'buy', googlePay: 'buy' },
+        } );
+
+        eceEl.on( 'ready', function ( event ) {
+            var hasButtons = event.availablePaymentMethods &&
+                Object.values( event.availablePaymentMethods ).some( Boolean );
+            container.style.display = hasButtons ? '' : 'none';
+
+            // Show the separator inside the payment box only if gateway is selected.
+            if ( hasButtons ) {
+                $( '#ctstripe-separator' ).show();
+            }
+        } );
+
+        eceEl.on( 'confirm', function () {
+            if ( ! isOurGateway() ) {
+                // Force-select our gateway and submit.
+                $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
+                    .prop( 'checked', true )
+                    .trigger( 'change' );
+            }
+            eceActive = true;
+            $( 'form.checkout' ).submit();
+        } );
+
+        eceEl.mount( '#' + containerId );
+    }
+
+    // ── Payment Element ───────────────────────────────────────────────────────
+
+    function initPE() {
+        if ( peMounted ) {
+            return;
+        }
         var container = document.getElementById( 'ctstripe-payment-element' );
         if ( ! container ) {
             return;
         }
 
-        elements = stripe.elements( {
-            clientSecret: clientSecret,
-            locale:       ctstripe.locale || 'auto',
-            appearance:   {
-                theme:     'stripe',
-                variables: { borderRadius: '4px' },
-            },
-        } );
+        peElems = stripe.elements( elementsParams() );
 
-        paymentElement = elements.create( 'payment', {
+        peInstance = peElems.create( 'payment', {
             layout: {
                 type:                 'accordion',
                 defaultCollapsed:     false,
@@ -46,77 +105,12 @@
                 spacedAccordionItems: true,
             },
         } );
-        paymentElement.mount( '#ctstripe-payment-element' );
-        mounted = true;
+
+        peInstance.mount( '#ctstripe-payment-element' );
+        peMounted = true;
     }
 
-    function fetchIntent( orderId ) {
-        return $.ajax( {
-            url:    ctstripe.ajax_url,
-            method: 'POST',
-            data:   {
-                nonce:    ctstripe.nonce,
-                order_id: orderId || 0,
-            },
-        } );
-    }
-
-    function initElement() {
-        if ( ! isOurGatewaySelected() ) {
-            return;
-        }
-
-        fetchIntent( 0 ).done( function ( response ) {
-            if ( ! response.success ) {
-                showError( response.data.message || 'Errore Stripe.' );
-                return;
-            }
-            intentId = response.data.intent_id;
-            mountPaymentElement( response.data.client_secret );
-        } ).fail( function () {
-            showError( 'Impossibile connettersi a Stripe.' );
-        } );
-    }
-
-    function showError( message ) {
-        $( '#ctstripe-errors' ).text( message );
-    }
-
-    function clearError() {
-        $( '#ctstripe-errors' ).text( '' );
-    }
-
-    // Init on gateway selection.
-    $( document.body ).on( 'payment_method_selected', function () {
-        if ( isOurGatewaySelected() && ! mounted ) {
-            initElement();
-        }
-    } );
-
-    // Init if already selected on load.
-    $( function () {
-        if ( isOurGatewaySelected() ) {
-            initElement();
-        }
-    } );
-
-    // Intercept WC checkout submission.
-    $( document.body ).on( 'checkout_place_order_' + ctstripe.gateway_id, function () {
-        if ( ! elements || ! clientSecret ) {
-            showError( 'Stripe non ancora inizializzato. Riprova.' );
-            return false;
-        }
-        return true;
-    } );
-
-    // After WC creates the order and returns success, confirm payment via Stripe.
-    $( document.body ).on( 'checkout_error', function () {
-        // Re-enable submit button on WC error.
-        $( '#place_order' ).prop( 'disabled', false );
-    } );
-
-    // Hook into WC's AJAX checkout response.
-    var originalProcessResponse = window.wc_checkout_params;
+    // ── WC checkout AJAX intercept ────────────────────────────────────────────
 
     $( document ).ajaxComplete( function ( event, xhr, settings ) {
         if ( ! settings.url || settings.url.indexOf( 'wc-ajax=checkout' ) === -1 ) {
@@ -130,42 +124,94 @@
             return;
         }
 
-        if (
-            data.result === 'success' &&
-            data.redirect === false &&
-            isOurGatewaySelected()
-        ) {
-            // Extract order id from messages or re-fetch intent with order.
-            clearError();
-            confirmPayment();
+        if ( data.result !== 'success' ) {
+            eceActive = false;
+            $( '#place_order' ).prop( 'disabled', false );
+            return;
         }
-    } );
 
-    function confirmPayment() {
-        var returnUrl = ctstripe.return_url +
-            '?payment_intent_client_secret=' + encodeURIComponent( clientSecret );
+        if ( ! data.redirect || data.redirect.indexOf( '#ctstripe-' ) === -1 ) {
+            return;
+        }
 
-        elements.submit().then( function ( result ) {
-            if ( result.error ) {
-                showError( result.error.message );
-                $( '#place_order' ).prop( 'disabled', false );
-                return;
-            }
+        var clientSecret = data.ctstripe_client_secret;
+        if ( ! clientSecret ) {
+            return;
+        }
 
+        clearError();
+
+        if ( eceActive ) {
             stripe.confirmPayment( {
-                elements:       elements,
-                clientSecret:   clientSecret,
-                confirmParams: {
-                    return_url: returnUrl,
-                },
+                elements:      eceElems,
+                clientSecret:  clientSecret,
+                confirmParams: { return_url: ctstripe.return_url },
             } ).then( function ( result ) {
                 if ( result.error ) {
                     showError( result.error.message );
                     $( '#place_order' ).prop( 'disabled', false );
                 }
-                // On success Stripe redirects automatically.
+                eceActive = false;
             } );
-        } );
-    }
+        } else {
+            peElems.submit().then( function ( result ) {
+                if ( result.error ) {
+                    showError( result.error.message );
+                    $( '#place_order' ).prop( 'disabled', false );
+                    return;
+                }
+                stripe.confirmPayment( {
+                    elements:      peElems,
+                    clientSecret:  clientSecret,
+                    confirmParams: { return_url: ctstripe.return_url },
+                } ).then( function ( result ) {
+                    if ( result.error ) {
+                        showError( result.error.message );
+                        $( '#place_order' ).prop( 'disabled', false );
+                    }
+                } );
+            } );
+        }
+    } );
+
+    // ── Keep amount in sync when cart updates ─────────────────────────────────
+
+    $( document.body ).on( 'updated_checkout', function ( event, data ) {
+        var newAmount = data && data.ctstripe_cart_amount
+            ? parseInt( data.ctstripe_cart_amount, 10 )
+            : null;
+
+        if ( newAmount ) {
+            ctstripe.cart_amount = newAmount;
+            if ( eceElems ) {
+                eceElems.update( { amount: newAmount } );
+            }
+            if ( peElems ) {
+                peElems.update( { amount: newAmount } );
+            }
+        }
+    } );
+
+    // ── Gateway selection ─────────────────────────────────────────────────────
+
+    $( document.body ).on( 'payment_method_selected', function () {
+        if ( isOurGateway() && ! peMounted ) {
+            initPE();
+        }
+    } );
+
+    // ── Init on load ──────────────────────────────────────────────────────────
+
+    $( function () {
+        // Express buttons inside payment box.
+        initECE( 'ctstripe-express-checkout-element' );
+
+        // Express buttons above checkout form (WC renders #ctstripe-ece-global here).
+        initECE( 'ctstripe-ece-global' );
+
+        if ( isOurGateway() ) {
+            initPE();
+        }
+    } );
 
 } )( jQuery );

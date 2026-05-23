@@ -30,4 +30,21 @@ add_action( 'plugins_loaded', function () {
     } );
 
     ( new CTStripe_Webhook() )->init();
+
+    // Render express checkout buttons above checkout form and above cart.
+    $ece_html = '<div id="ctstripe-ece-global" style="margin-bottom:16px;"></div>';
+
+    add_action( 'woocommerce_before_checkout_form', function () use ( $ece_html ) {
+        $gateways = WC()->payment_gateways()->payment_gateways();
+        if ( isset( $gateways['ctstripe'] ) && $gateways['ctstripe']->is_available() ) {
+            echo $ece_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
+        }
+    }, 5 );
+
+    add_action( 'woocommerce_before_cart', function () use ( $ece_html ) {
+        $gateways = WC()->payment_gateways()->payment_gateways();
+        if ( isset( $gateways['ctstripe'] ) && $gateways['ctstripe']->is_available() ) {
+            echo $ece_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
+        }
+    }, 5 );
 } );

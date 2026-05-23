@@ -18,7 +18,9 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
         add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, [ $this, 'process_admin_options' ] );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
-        add_action( 'woocommerce_api_ctstripe_intent', [ $this, 'handle_create_intent' ] );
+
+        // Keep cart amount in sync when WC recalculates order review.
+        add_filter( 'woocommerce_update_order_review_fragments', [ $this, 'add_cart_amount_fragment' ] );
     }
 
     public function init_form_fields(): void {
@@ -100,11 +102,11 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
         wp_localize_script( 'ctstripe-checkout', 'ctstripe', [
             'publishable_key' => $this->get_option( 'publishable_key' ),
-            'ajax_url'        => WC()->api_request_url( 'ctstripe_intent' ),
-            'nonce'           => wp_create_nonce( 'ctstripe_intent' ),
             'return_url'      => home_url( '/ctstripe-return' ),
             'locale'          => $this->get_stripe_locale(),
             'gateway_id'      => $this->id,
+            'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
+            'cart_currency'   => strtolower( get_woocommerce_currency() ),
         ] );
     }
 
@@ -112,28 +114,23 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         if ( $this->description ) {
             echo '<p>' . esc_html( $this->description ) . '</p>';
         }
+        echo '<div id="ctstripe-express-checkout-element"></div>';
+        echo '<div id="ctstripe-separator" style="display:none;text-align:center;margin:16px 0;color:#6b7280;font-size:0.85em;">— ' . esc_html__( 'o paga con', 'carttrigger-stripe' ) . ' —</div>';
         echo '<div id="ctstripe-payment-element" style="min-height:40px;"></div>';
         echo '<div id="ctstripe-errors" style="color:#cc0000;margin-top:8px;"></div>';
     }
 
-    public function handle_create_intent(): void {
-        check_ajax_referer( 'ctstripe_intent', 'nonce' );
-
-        $order_id = absint( sanitize_text_field( wp_unslash( $_POST['order_id'] ?? '' ) ) );
-        $order    = $order_id ? wc_get_order( $order_id ) : null;
-
-        // If no confirmed order yet, use cart totals.
-        $amount   = $order ? $this->get_stripe_amount( $order->get_total(), $order->get_currency() )
-                           : $this->get_stripe_amount( WC()->cart->get_total( 'raw' ), get_woocommerce_currency() );
-        $currency = strtolower( $order ? $order->get_currency() : get_woocommerce_currency() );
+    public function process_payment( $order_id ): array {
+        $order = wc_get_order( $order_id );
 
         try {
             $api  = $this->get_api();
             $args = [
-                'amount'               => $amount,
-                'currency'             => $currency,
-                'capture_method'       => $this->get_option( 'capture_mode', 'automatic' ),
+                'amount'         => $this->get_stripe_amount( (float) $order->get_total(), $order->get_currency() ),
+                'currency'       => strtolower( $order->get_currency() ),
+                'capture_method' => $this->get_option( 'capture_mode', 'automatic' ),
                 'automatic_payment_methods' => [ 'enabled' => 'true' ],
+                'metadata'       => [ 'order_id' => $order->get_id() ],
             ];
 
             $pmc_id = $this->get_option( 'payment_method_config_id' );
@@ -142,48 +139,37 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 unset( $args['automatic_payment_methods'] );
             }
 
-            if ( $order ) {
-                $args['metadata'] = [ 'order_id' => $order->get_id() ];
-                $existing_intent  = $order->get_meta( '_ctstripe_intent_id' );
-
-                if ( $existing_intent ) {
-                    $intent = $api->update_payment_intent( $existing_intent, $args );
-                } else {
-                    $intent = $api->create_payment_intent( $args );
-                    $order->update_meta_data( '_ctstripe_intent_id', $intent['id'] );
-                    $order->save();
-                }
+            $existing_intent = $order->get_meta( '_ctstripe_intent_id' );
+            if ( $existing_intent ) {
+                $intent = $api->update_payment_intent( $existing_intent, $args );
             } else {
                 $intent = $api->create_payment_intent( $args );
             }
 
-            wp_send_json_success( [
-                'client_secret' => $intent['client_secret'],
-                'intent_id'     => $intent['id'],
-            ] );
+            $order->update_meta_data( '_ctstripe_intent_id', $intent['id'] );
+            $order->update_status( 'pending', __( 'In attesa di conferma Stripe.', 'carttrigger-stripe' ) );
+            $order->save();
+
+            WC()->cart->empty_cart();
+
+            return [
+                'result'                 => 'success',
+                'redirect'               => '#ctstripe-confirm',
+                'ctstripe_client_secret' => $intent['client_secret'],
+            ];
 
         } catch ( \Exception $e ) {
-            wp_send_json_error( [ 'message' => $e->getMessage() ] );
+            wc_add_notice( $e->getMessage(), 'error' );
+            return [ 'result' => 'failure' ];
         }
     }
 
-    public function process_payment( $order_id ): array {
-        $order     = wc_get_order( $order_id );
-        $intent_id = sanitize_text_field( wp_unslash( $_POST['ctstripe_intent_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WooCommerce before process_payment() is called.
-
-        if ( $intent_id ) {
-            $order->update_meta_data( '_ctstripe_intent_id', $intent_id );
-            $order->save();
-        }
-
-        // JS will call stripe.confirmPayment() and redirect — mark as pending.
-        $order->update_status( 'pending', __( 'In attesa di conferma Stripe.', 'carttrigger-stripe' ) );
-        WC()->cart->empty_cart();
-
-        return [
-            'result'   => 'success',
-            'redirect' => false, // JS handles the redirect via stripe.confirmPayment().
-        ];
+    public function add_cart_amount_fragment( array $fragments ): array {
+        $fragments['ctstripe_cart_amount'] = $this->get_stripe_amount(
+            (float) WC()->cart->get_total( 'raw' ),
+            get_woocommerce_currency()
+        );
+        return $fragments;
     }
 
     public function process_refund( $order_id, $amount = null, $reason = '' ) {
@@ -204,10 +190,10 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
             $refund_args = [ 'charge' => $charge_id ];
             if ( $amount ) {
-                $refund_args['amount'] = $this->get_stripe_amount( $amount, $order->get_currency() );
+                $refund_args['amount'] = $this->get_stripe_amount( (float) $amount, $order->get_currency() );
             }
             if ( $reason ) {
-                $refund_args['reason'] = 'other';
+                $refund_args['reason']   = 'other';
                 $refund_args['metadata'] = [ 'reason' => $reason ];
             }
 
@@ -223,7 +209,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         return new CTStripe_API( $this->get_option( 'secret_key' ) );
     }
 
-    private function get_stripe_amount( float $amount, string $currency ): int {
+    public function get_stripe_amount( float $amount, string $currency ): int {
         $zero_decimal = [ 'bif','clp','gnf','jpy','kmf','krw','mga','pyg','rwf','ugx','vnd','vuv','xaf','xof','xpf' ];
         if ( in_array( strtolower( $currency ), $zero_decimal, true ) ) {
             return (int) $amount;

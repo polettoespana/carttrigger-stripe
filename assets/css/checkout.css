@@ -1,4 +1,6 @@
-#ctstripe-payment-element {
+#ctstripe-payment-element,
+#ctstripe-express-checkout-element,
+#ctstripe-ece-global {
     width: 100%;
     box-sizing: border-box;
 }
