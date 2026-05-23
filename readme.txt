@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.6.3 =
+* Fix: ordini creati via ECE (Express Checkout fuori dal checkout) mostravano "Sconosciuto" come origine — aggiunto created_via=checkout a wc_create_order().
 
 = 1.6.2 =
 * Fix: ECE checkout page — i campi billing vengono popolati solo se vuoti (utente guest), senza sovrascrivere quelli precompilati dell'utente loggato.

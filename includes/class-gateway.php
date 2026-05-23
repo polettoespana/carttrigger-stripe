@@ -511,7 +511,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         $first_name = $name_parts[0] ?? '';
         $last_name  = $name_parts[1] ?? '';
 
-        $order = wc_create_order( [ 'customer_id' => get_current_user_id() ] );
+        $order = wc_create_order( [ 'customer_id' => get_current_user_id(), 'created_via' => 'checkout' ] );
 
         // Products — copy cart line totals directly so discounts are preserved.
         foreach ( WC()->cart->get_cart() as $item ) {
