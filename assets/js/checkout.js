@@ -52,6 +52,12 @@
         return params;
     }
 
+    function redirectAfterPayment( paymentIntent ) {
+        window.location.href = ctstripe.return_url +
+            '?payment_intent=' + paymentIntent.id +
+            '&payment_intent_client_secret=' + paymentIntent.client_secret;
+    }
+
     function isOurGateway() {
         return $( 'input[name="payment_method"]:checked' ).val() === ctstripe.gateway_id;
     }
@@ -163,6 +169,14 @@
                             if ( result.error ) {
                                 if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                                 showError( result.error.message );
+                                eceActive = false;
+                                return;
+                            }
+                            // Wallet payments (Apple Pay, Google Pay) resolve here instead of
+                            // redirecting — we redirect manually to the return handler.
+                            if ( result.paymentIntent ) {
+                                redirectAfterPayment( result.paymentIntent );
+                                return;
                             }
                             eceActive = false;
                         } );
@@ -244,6 +258,14 @@
                     if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                     showError( result.error.message );
                     $( '#place_order' ).prop( 'disabled', false );
+                    eceActive = false;
+                    return;
+                }
+                // Wallet payments (Apple Pay, Google Pay) resolve here instead of
+                // redirecting — we redirect manually to the return handler.
+                if ( result.paymentIntent ) {
+                    redirectAfterPayment( result.paymentIntent );
+                    return;
                 }
                 eceActive = false;
             } );

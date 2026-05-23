@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.8
+Stable tag: 1.5.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.5.9 =
+* Fix: Apple Pay e Google Pay (wallet) non completavano il pagamento — stripe.confirmPayment() per i metodi wallet risolve la Promise senza redirect automatico; ora viene fatto redirect manuale al return handler con i parametri del PaymentIntent.
 
 = 1.5.8 =
 * Fix: ECE checkout page — i campi billing WooCommerce vengono popolati da event.billingDetails (Apple Pay/Google Pay) prima di sottomettere il form, evitando il rifiuto per campi obbligatori vuoti.
