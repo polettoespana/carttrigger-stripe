@@ -212,14 +212,21 @@
             initPE();
         }
 
-        // Re-mount all ECE containers: unmount existing instance (if any) then re-init
-        // with the updated amount. Using update() causes buttons to disappear permanently.
-        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( el ) {
-            if ( eceMounted[ el.id ] ) {
-                eceMounted[ el.id ].el.unmount();
-                delete eceMounted[ el.id ];
+        // Update amount and re-attach ECE elements to their containers.
+        // Reuse the same stripe.elements() instance — Stripe does not support multiple instances.
+        // el.mount() after el.unmount() re-attaches the same element without re-evaluating availability.
+        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( domEl ) {
+            var mounted = eceMounted[ domEl.id ];
+            if ( ! mounted ) {
+                initECE( domEl.id );
+                return;
             }
-            initECE( el.id );
+            if ( newAmount ) {
+                mounted.elems.update( { amount: newAmount } );
+            }
+            if ( ! domEl.querySelector( 'iframe' ) ) {
+                mounted.el.mount( '#' + domEl.id );
+            }
         } );
     } );
 
