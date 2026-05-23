@@ -107,6 +107,7 @@
             eceElems = elems;
             eceEvent = event;
             eceActive = true;
+            console.log( '[CTStripe] confirm fired, form.checkout:', !! $( 'form.checkout' ).length );
 
             if ( $( 'form.checkout' ).length ) {
                 // Validate T&C before opening the payment sheet.
@@ -145,6 +146,7 @@
                 $( 'form.checkout' ).submit();
             } else {
                 // Outside checkout: create order via AJAX with Apple Pay billing details.
+                console.log( '[CTStripe] calling ajax_url:', ctstripe.ajax_url );
                 $.ajax( {
                     url:      ctstripe.ajax_url,
                     type:     'POST',
@@ -154,6 +156,7 @@
                         billing: JSON.stringify( event.billingDetails || {} ),
                     },
                     success: function ( response ) {
+                        console.log( '[CTStripe] ajax_create_order response:', response );
                         if ( ! response.success ) {
                             console.error( '[CTStripe] ajax_create_order failed:', response );
                             if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
@@ -182,7 +185,8 @@
                             eceActive = false;
                         } );
                     },
-                    error: function () {
+                    error: function ( xhr, status, err ) {
+                        console.error( '[CTStripe] ajax_create_order HTTP error:', xhr.status, status, err, xhr.responseText );
                         if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                         eceActive = false;
                     },
