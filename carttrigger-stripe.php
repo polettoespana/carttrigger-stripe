@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.5.3
+ * Version:     1.5.4
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.5.3' );
+define( 'CTSTRIPE_VERSION', '1.5.4' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -137,7 +137,8 @@ function ctstripe_express_checkout_shortcode( $atts ): string {
             'class'  => '',
             'style'  => '',
             'id'     => 'ctstripe-ece-' . wp_unique_id(),
-            'notice' => 'Los datos de pago y dirección se obtienen del método de pago rápido seleccionado.',
+            'notice'        => 'Se utilizarán los datos guardados en el método de pago rápido seleccionado (nombre, dirección y email).',
+            'checkout_link' => 'Si prefieres introducir tus datos manualmente, accede al checkout.',
         ],
         $atts,
         'ctstripe_express_checkout'
@@ -153,8 +154,15 @@ function ctstripe_express_checkout_shortcode( $atts ): string {
     $html  = '<div data-ctstripe-ece-wrapper' . $class . $style . '>';
     $html .= '<div id="' . esc_attr( $atts['id'] ) . '" data-ctstripe-ece></div>';
 
-    if ( ! is_checkout() && $atts['notice'] ) {
-        $html .= '<p class="ctstripe-ece-notice">' . esc_html( $atts['notice'] ) . '</p>';
+    if ( ! is_checkout() && ( $atts['notice'] || $atts['checkout_link'] ) ) {
+        $html .= '<p class="ctstripe-ece-notice">';
+        if ( $atts['notice'] ) {
+            $html .= esc_html( $atts['notice'] );
+        }
+        if ( $atts['checkout_link'] ) {
+            $html .= ' <a href="' . esc_url( wc_get_checkout_url() ) . '" class="ctstripe-ece-checkout-link">' . esc_html( $atts['checkout_link'] ) . '</a>';
+        }
+        $html .= '</p>';
     }
 
     $html .= '</div>';

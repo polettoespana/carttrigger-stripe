@@ -10,3 +10,16 @@
     padding-right: 0;
     background: transparent;
 }
+
+.ctstripe-ece-notice {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.ctstripe-ece-notice .ctstripe-ece-checkout-link {
+    color: inherit;
+    text-decoration: underline;
+    white-space: nowrap;
+}

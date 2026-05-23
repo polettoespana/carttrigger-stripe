@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.3
+Stable tag: 1.5.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.5.4 =
+* Shortcode: aggiunto attributo checkout_link — testo cliccabile che rimanda al checkout per chi vuole compilare i dati manualmente. Entrambi notice e checkout_link personalizzabili per shortcode.
 
 = 1.5.3 =
 * Nuova impostazione: toggle per abilitare/disabilitare Stripe Link, PayPal e Amazon Pay nell'Express Checkout Element (opzione paymentMethods). Klarna è controllata dal PMC nel Stripe Dashboard.
