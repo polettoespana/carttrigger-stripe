@@ -69,11 +69,25 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 ],
                 'default' => 'automatic',
             ],
+            'express_locations'  => [
+                'title'   => 'Pulsanti express (Apple Pay / Google Pay)',
+                'type'    => 'multiselect',
+                'options' => [
+                    'checkout' => 'Sopra il form di checkout',
+                    'cart'     => 'Sopra il carrello',
+                    'payment'  => 'Dentro il box metodo di pagamento',
+                ],
+                'default' => [ 'checkout', 'payment' ],
+                'description' => 'Seleziona dove mostrare i pulsanti Apple Pay e Google Pay.',
+            ],
         ];
     }
 
     public function enqueue_scripts(): void {
-        if ( ! is_checkout() && ! is_cart() ) {
+        $locations = (array) $this->get_option( 'express_locations', [ 'checkout', 'payment' ] );
+        $on_cart   = in_array( 'cart', $locations, true ) && is_cart();
+        $on_checkout = is_checkout();
+        if ( ! $on_checkout && ! $on_cart ) {
             return;
         }
 
@@ -114,8 +128,11 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         if ( $this->description ) {
             echo '<p>' . esc_html( $this->description ) . '</p>';
         }
-        echo '<div id="ctstripe-express-checkout-element"></div>';
-        echo '<div id="ctstripe-separator" style="display:none;text-align:center;margin:16px 0;color:#6b7280;font-size:0.85em;">— ' . esc_html__( 'o paga con', 'carttrigger-stripe' ) . ' —</div>';
+        $locations = (array) $this->get_option( 'express_locations', [ 'checkout', 'payment' ] );
+        if ( in_array( 'payment', $locations, true ) ) {
+            echo '<div id="ctstripe-express-checkout-element"></div>';
+            echo '<div id="ctstripe-separator" style="display:none;text-align:center;margin:16px 0;color:#6b7280;font-size:0.85em;">— ' . esc_html__( 'o paga con', 'carttrigger-stripe' ) . ' —</div>';
+        }
         echo '<div id="ctstripe-payment-element" style="min-height:40px;"></div>';
         echo '<div id="ctstripe-errors" style="color:#cc0000;margin-top:8px;"></div>';
     }

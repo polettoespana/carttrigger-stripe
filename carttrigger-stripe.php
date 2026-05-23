@@ -31,20 +31,28 @@ add_action( 'plugins_loaded', function () {
 
     ( new CTStripe_Webhook() )->init();
 
-    // Render express checkout buttons above checkout form and above cart.
-    $ece_html = '<div id="ctstripe-ece-global" style="margin-bottom:16px;"></div>';
-
-    add_action( 'woocommerce_before_checkout_form', function () use ( $ece_html ) {
-        $gateways = WC()->payment_gateways()->payment_gateways();
-        if ( isset( $gateways['ctstripe'] ) && $gateways['ctstripe']->is_available() ) {
-            echo $ece_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
+    // Render express checkout buttons based on gateway settings.
+    add_action( 'woocommerce_before_checkout_form', function () {
+        $gateways  = WC()->payment_gateways()->payment_gateways();
+        $gateway   = $gateways['ctstripe'] ?? null;
+        if ( ! $gateway || ! $gateway->is_available() ) {
+            return;
+        }
+        $locations = (array) $gateway->get_option( 'express_locations', [ 'checkout', 'payment' ] );
+        if ( in_array( 'checkout', $locations, true ) ) {
+            echo '<div id="ctstripe-ece-global" style="margin-bottom:16px;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
         }
     }, 5 );
 
-    add_action( 'woocommerce_before_cart', function () use ( $ece_html ) {
-        $gateways = WC()->payment_gateways()->payment_gateways();
-        if ( isset( $gateways['ctstripe'] ) && $gateways['ctstripe']->is_available() ) {
-            echo $ece_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
+    add_action( 'woocommerce_before_cart', function () {
+        $gateways  = WC()->payment_gateways()->payment_gateways();
+        $gateway   = $gateways['ctstripe'] ?? null;
+        if ( ! $gateway || ! $gateway->is_available() ) {
+            return;
+        }
+        $locations = (array) $gateway->get_option( 'express_locations', [ 'checkout', 'payment' ] );
+        if ( in_array( 'cart', $locations, true ) ) {
+            echo '<div id="ctstripe-ece-global" style="margin-bottom:16px;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
         }
     }, 5 );
 } );
