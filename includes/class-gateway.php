@@ -22,10 +22,6 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
         // Keep cart amount in sync when WC recalculates order review.
         add_filter( 'woocommerce_update_order_review_fragments', [ $this, 'add_cart_amount_fragment' ] );
-
-        // Direct order creation for ECE outside checkout page.
-        add_action( 'wp_ajax_ctstripe_create_order', [ $this, 'ajax_create_order' ] );
-        add_action( 'wp_ajax_nopriv_ctstripe_create_order', [ $this, 'ajax_create_order' ] );
     }
 
     public function init_form_fields(): void {
@@ -387,7 +383,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         );
 
         wp_localize_script( 'ctstripe-checkout', 'ctstripe', [
-            'ajax_url'        => admin_url( 'admin-ajax.php' ),
+            'ajax_url'        => add_query_arg( 'wc-ajax', 'ctstripe_create_order', home_url( '/' ) ),
             'nonce'           => wp_create_nonce( 'ctstripe_create_order' ),
             'publishable_key' => $this->get_option( 'publishable_key' ),
             'return_url'      => home_url( '/ctstripe-return' ),

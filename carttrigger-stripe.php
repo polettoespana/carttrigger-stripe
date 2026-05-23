@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.5.9
+ * Version:     1.6.0
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.5.9' );
+define( 'CTSTRIPE_VERSION', '1.6.0' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -72,6 +72,23 @@ add_action( 'plugins_loaded', function () {
         $gateways[] = 'CTStripe_Gateway';
         return $gateways;
     } );
+
+    // AJAX handler for ECE order creation — registered here (not in the gateway
+    // constructor) so it fires even when WC hasn't instantiated gateways yet.
+    // Uses ?wc-ajax= to bypass admin-ajax.php and any WAF rules blocking it.
+    $ctstripe_create_order_handler = function () {
+        $gateways = WC()->payment_gateways()->payment_gateways();
+        $gateway  = $gateways['ctstripe'] ?? null;
+        if ( $gateway ) {
+            $gateway->ajax_create_order();
+        } else {
+            wp_send_json_error( [ 'message' => 'Gateway non disponibile.' ] );
+        }
+    };
+    add_action( 'wc_ajax_ctstripe_create_order', $ctstripe_create_order_handler );
+    // Fallback via admin-ajax.php (e.g. if WC AJAX endpoint unavailable).
+    add_action( 'wp_ajax_ctstripe_create_order', $ctstripe_create_order_handler );
+    add_action( 'wp_ajax_nopriv_ctstripe_create_order', $ctstripe_create_order_handler );
 
     ( new CTStripe_Webhook() )->init();
 

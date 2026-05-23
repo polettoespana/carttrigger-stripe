@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.9
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.6.0 =
+* Fix: endpoint AJAX per la creazione ordine ECE spostato da admin-ajax.php a ?wc-ajax= (WooCommerce endpoint) — risolve i 400 causati da WAF o dall'istanziazione lazy del gateway che impediva la registrazione delle hook su admin-ajax.php.
+* Fix: hook AJAX registrate a plugins_loaded invece che nel costruttore del gateway, garantendo che siano disponibili indipendentemente dall'istanziazione del gateway.
 
 = 1.5.9 =
 * Fix: Apple Pay e Google Pay (wallet) non completavano il pagamento — stripe.confirmPayment() per i metodi wallet risolve la Promise senza redirect automatico; ora viene fatto redirect manuale al return handler con i parametri del PaymentIntent.

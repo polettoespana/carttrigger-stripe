@@ -150,7 +150,6 @@
                     type:     'POST',
                     dataType: 'json',
                     data: {
-                        action:  'ctstripe_create_order',
                         nonce:   ctstripe.nonce,
                         billing: JSON.stringify( event.billingDetails || {} ),
                     },
