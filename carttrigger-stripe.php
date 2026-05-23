@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.5.5
+ * Version:     1.5.6
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.5.5' );
+define( 'CTSTRIPE_VERSION', '1.5.6' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -138,7 +138,7 @@ function ctstripe_express_checkout_shortcode( $atts ): string {
             'style'  => '',
             'id'     => 'ctstripe-ece-' . wp_unique_id(),
             'notice'        => 'Se utilizarán los datos guardados en el método de pago rápido seleccionado (nombre, dirección y email).',
-            'checkout_link' => 'Si prefieres introducir tus datos manualmente, accede al checkout.',
+            'checkout_link' => 'Para otros datos, ve al checkout.',
         ],
         $atts,
         'ctstripe_express_checkout'
