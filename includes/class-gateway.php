@@ -364,6 +364,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
+            'title_class'     => trim( $this->get_option( 'title_class', 'ctstripe-title' ) ),
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
             'appearance'      => array_filter( [

@@ -243,8 +243,10 @@
             initPE();
         }
 
-        // Apply theme font class to the WC-injected gateway label.
-        $( '.wc_payment_method.payment_method_' + ctstripe.gateway_id + ' > label' ).addClass( 'font-grotesk' );
+        // Apply title_class to the WC-injected gateway label.
+        if ( ctstripe.title_class ) {
+            $( '.wc_payment_method.payment_method_' + ctstripe.gateway_id + ' > label' ).addClass( ctstripe.title_class );
+        }
     } );
 
 } )( jQuery );
