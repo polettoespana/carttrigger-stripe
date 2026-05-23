@@ -59,12 +59,6 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'type'    => 'text',
                 'default' => 'Paga con carta o altro metodo',
             ],
-            'title_class'        => [
-                'title'       => 'Classe CSS titolo',
-                'type'        => 'text',
-                'description' => 'Classe applicata al wrapper del titolo nel box di pagamento. Lascia vuoto per nessuna classe.',
-                'default'     => 'ctstripe-title',
-            ],
             'description'        => [
                 'title'   => 'Descrizione',
                 'type'    => 'textarea',
@@ -266,7 +260,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             [
                 'title'  => 'Aspetto nel checkout',
                 'icon'   => 'dashicons-visibility',
-                'fields' => [ 'title', 'title_class', 'description', 'description_class' ],
+                'fields' => [ 'title', 'description', 'description_class' ],
             ],
             [
                 'title'  => 'Aspetto Payment Element',
@@ -364,7 +358,6 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
-            'title_class'     => trim( $this->get_option( 'title_class', 'ctstripe-title' ) ),
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
             'appearance'      => array_filter( [
