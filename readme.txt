@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.4.0 =
+* Impostazione layout metodi di pagamento: accordion verticale o tabs orizzontali scorrevoli.
+* Fix: titolo non più duplicato nel box di pagamento (WC lo renderizza già come label).
 
 = 1.3.1 =
 * Appearance: aggiunti spacingUnit, fontSizeBase e campo CSS Rules JSON per targeting componenti interni Stripe.
