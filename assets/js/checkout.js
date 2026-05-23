@@ -134,15 +134,18 @@
                 if ( eceAddress.line2 )         { $( '#billing_address_2' ).val( eceAddress.line2 ); }
                 if ( eceAddress.city )          { $( '#billing_city' ).val( eceAddress.city ); }
                 if ( eceAddress.postal_code )   { $( '#billing_postcode' ).val( eceAddress.postal_code ); }
-                if ( eceAddress.country )       { $( '#billing_country' ).val( eceAddress.country ).trigger( 'change' ); }
+                // No .trigger('change') — evita che WC avvii update_order_review AJAX
+                // che imposta .processing sul form bloccando il submit successivo.
+                if ( eceAddress.country )       { $( '#billing_country' ).val( eceAddress.country ); }
                 if ( eceAddress.state )         { $( '#billing_state' ).val( eceAddress.state ); }
 
                 // Checkout page: submit WC form; payment confirmed in ajaxComplete.
+                // prop('checked') senza trigger('change') per evitare un secondo update AJAX.
                 if ( ! isOurGateway() ) {
                     $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
-                        .prop( 'checked', true )
-                        .trigger( 'change' );
+                        .prop( 'checked', true );
                 }
+                console.log( '[CTStripe] submitting form.checkout, processing:', $( 'form.checkout' ).is( '.processing' ) );
                 $( 'form.checkout' ).submit();
             } else {
                 // Outside checkout: create order via AJAX with Apple Pay billing details.
@@ -236,6 +239,7 @@
         }
 
         if ( data.result !== 'success' ) {
+            console.error( '[CTStripe] WC checkout failed:', data );
             eceActive = false;
             if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
             $( '#place_order' ).prop( 'disabled', false );
