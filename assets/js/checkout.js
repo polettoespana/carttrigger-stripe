@@ -7,7 +7,7 @@
     }
 
     var stripe      = Stripe( ctstripe.publishable_key );
-    var eceMounted  = {}; // containerId → stripe.elements() instance
+    var eceMounted  = {}; // containerId → { elems, el }
     var eceElems    = null; // elements instance that triggered ECE confirm
     var peElems     = null;
     var peInstance  = null;
@@ -102,7 +102,7 @@
         } );
 
         el.mount( '#' + containerId );
-        eceMounted[ containerId ] = elems;
+        eceMounted[ containerId ] = { elems: elems, el: el };
     }
 
     // ── Payment Element ───────────────────────────────────────────────────────
@@ -212,15 +212,14 @@
             initPE();
         }
 
-        // Re-mount ECE containers that were emptied by WC (no iframe inside).
-        // Shortcode containers outside the payment box survive the refresh.
+        // Re-mount all ECE containers: unmount existing instance (if any) then re-init
+        // with the updated amount. Using update() causes buttons to disappear permanently.
         document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( el ) {
-            if ( ! el.querySelector( 'iframe' ) ) {
+            if ( eceMounted[ el.id ] ) {
+                eceMounted[ el.id ].el.unmount();
                 delete eceMounted[ el.id ];
-                initECE( el.id );
-            } else if ( newAmount && eceMounted[ el.id ] ) {
-                eceMounted[ el.id ].update( { amount: newAmount } );
             }
+            initECE( el.id );
         } );
     } );
 
