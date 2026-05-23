@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.5.1
+ * Version:     1.5.2
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.5.1' );
+define( 'CTSTRIPE_VERSION', '1.5.2' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -125,10 +125,6 @@ add_action( 'plugins_loaded', function () {
  * Usage: [ctstripe_express_checkout class="my-class" style="margin-bottom:16px;"]
  */
 function ctstripe_express_checkout_shortcode( $atts ): string {
-    if ( is_cart() ) {
-        return '';
-    }
-
     $gateways = WC()->payment_gateways()->payment_gateways();
     $gateway  = $gateways['ctstripe'] ?? null;
 
@@ -138,9 +134,10 @@ function ctstripe_express_checkout_shortcode( $atts ): string {
 
     $atts = shortcode_atts(
         [
-            'class' => '',
-            'style' => '',
-            'id'    => 'ctstripe-ece-' . wp_unique_id(),
+            'class'  => '',
+            'style'  => '',
+            'id'     => 'ctstripe-ece-' . wp_unique_id(),
+            'notice' => 'Los datos de pago y dirección se obtienen del método de pago rápido seleccionado.',
         ],
         $atts,
         'ctstripe_express_checkout'
@@ -152,5 +149,15 @@ function ctstripe_express_checkout_shortcode( $atts ): string {
     $class = $atts['class'] ? ' class="' . esc_attr( $atts['class'] ) . '"' : '';
     $style = $atts['style'] ? ' style="' . esc_attr( $atts['style'] ) . '"' : '';
 
-    return '<div id="' . esc_attr( $atts['id'] ) . '"' . $class . $style . ' data-ctstripe-ece></div>';
+    // Wrap container + optional notice in a single element that can be hidden together.
+    $html  = '<div data-ctstripe-ece-wrapper' . $class . $style . '>';
+    $html .= '<div id="' . esc_attr( $atts['id'] ) . '" data-ctstripe-ece></div>';
+
+    if ( ! is_checkout() && $atts['notice'] ) {
+        $html .= '<p class="ctstripe-ece-notice">' . esc_html( $atts['notice'] ) . '</p>';
+    }
+
+    $html .= '</div>';
+
+    return $html;
 }

@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,12 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.5.2 =
+* Nuovo: flusso diretto per Express Checkout fuori dalla pagina checkout — ordine creato via AJAX con dati billing da Apple Pay/Google Pay/Link, poi confirmPayment() chiamato direttamente senza form WC.
+* Nuovo: shortcode mostra nota informativa ("Los datos de pago...") fuori dal checkout; personalizzabile con attributo notice="...".
+* Fix: eceEvent.paymentFailed() chiamato correttamente in caso di errore per chiudere il foglio Apple Pay.
+* Fix: wrapper data-ctstripe-ece-wrapper gestisce visibilità container + nota insieme.
 
 = 1.5.1 =
 * Fix: shortcode [ctstripe_express_checkout] non renderizza nulla nella pagina carrello — Apple Pay/Google Pay funzionano solo nel checkout dove esiste il flusso di pagamento completo.

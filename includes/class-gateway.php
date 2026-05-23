@@ -22,6 +22,10 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
         // Keep cart amount in sync when WC recalculates order review.
         add_filter( 'woocommerce_update_order_review_fragments', [ $this, 'add_cart_amount_fragment' ] );
+
+        // Direct order creation for ECE outside checkout page.
+        add_action( 'wp_ajax_ctstripe_create_order', [ $this, 'ajax_create_order' ] );
+        add_action( 'wp_ajax_nopriv_ctstripe_create_order', [ $this, 'ajax_create_order' ] );
     }
 
     public function init_form_fields(): void {
@@ -365,6 +369,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         );
 
         wp_localize_script( 'ctstripe-checkout', 'ctstripe', [
+            'ajax_url'        => admin_url( 'admin-ajax.php' ),
+            'nonce'           => wp_create_nonce( 'ctstripe_create_order' ),
             'publishable_key' => $this->get_option( 'publishable_key' ),
             'return_url'      => home_url( '/ctstripe-return' ),
             'locale'          => $this->get_stripe_locale(),
@@ -461,6 +467,120 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             get_woocommerce_currency()
         );
         return $fragments;
+    }
+
+    public function ajax_create_order(): void {
+        if ( ! check_ajax_referer( 'ctstripe_create_order', 'nonce', false ) ) {
+            wp_send_json_error( [ 'message' => 'Nonce non valido.' ] );
+            return;
+        }
+
+        if ( ! WC()->cart || WC()->cart->is_empty() ) {
+            wp_send_json_error( [ 'message' => 'Il carrello è vuoto.' ] );
+            return;
+        }
+
+        WC()->cart->calculate_totals();
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified above via check_ajax_referer
+        $raw     = sanitize_text_field( wp_unslash( $_POST['billing'] ?? '{}' ) );
+        $billing = json_decode( $raw, true ) ?: [];
+        $address = $billing['address'] ?? [];
+
+        $name_parts = explode( ' ', $billing['name'] ?? '', 2 );
+        $first_name = $name_parts[0] ?? '';
+        $last_name  = $name_parts[1] ?? '';
+
+        $order = wc_create_order( [ 'customer_id' => get_current_user_id() ] );
+
+        // Products.
+        foreach ( WC()->cart->get_cart() as $item ) {
+            $order->add_product(
+                $item['data'],
+                $item['quantity'],
+                [ 'variation' => $item['variation'] ?? [] ]
+            );
+        }
+
+        // Shipping.
+        $chosen_methods = WC()->session->get( 'chosen_shipping_methods', [] );
+        foreach ( WC()->cart->get_shipping_packages() as $pkg_key => $package ) {
+            $chosen = $chosen_methods[ $pkg_key ] ?? null;
+            if ( $chosen && isset( $package['rates'][ $chosen ] ) ) {
+                $rate      = $package['rates'][ $chosen ];
+                $ship_item = new WC_Order_Item_Shipping();
+                $ship_item->set_props( [
+                    'method_title' => $rate->label,
+                    'method_id'    => $rate->method_id,
+                    'instance_id'  => $rate->instance_id,
+                    'cost'         => wc_format_decimal( $rate->cost ),
+                    'taxes'        => [ 'total' => $rate->taxes ],
+                ] );
+                $order->add_item( $ship_item );
+            }
+        }
+
+        // Coupons.
+        foreach ( WC()->cart->get_applied_coupons() as $code ) {
+            $order->apply_coupon( wc_format_coupon_code( $code ) );
+        }
+
+        // Billing address (from Apple Pay / Google Pay).
+        $order->set_billing_first_name( sanitize_text_field( $first_name ) );
+        $order->set_billing_last_name( sanitize_text_field( $last_name ) );
+        $order->set_billing_email( sanitize_email( $billing['email'] ?? '' ) );
+        $order->set_billing_phone( sanitize_text_field( $billing['phone'] ?? '' ) );
+        $order->set_billing_address_1( sanitize_text_field( $address['line1'] ?? '' ) );
+        $order->set_billing_address_2( sanitize_text_field( $address['line2'] ?? '' ) );
+        $order->set_billing_city( sanitize_text_field( $address['city'] ?? '' ) );
+        $order->set_billing_postcode( sanitize_text_field( $address['postal_code'] ?? '' ) );
+        $order->set_billing_country( sanitize_text_field( $address['country'] ?? '' ) );
+        $order->set_billing_state( sanitize_text_field( $address['state'] ?? '' ) );
+
+        // Mirror billing → shipping.
+        $order->set_shipping_first_name( sanitize_text_field( $first_name ) );
+        $order->set_shipping_last_name( sanitize_text_field( $last_name ) );
+        $order->set_shipping_address_1( sanitize_text_field( $address['line1'] ?? '' ) );
+        $order->set_shipping_address_2( sanitize_text_field( $address['line2'] ?? '' ) );
+        $order->set_shipping_city( sanitize_text_field( $address['city'] ?? '' ) );
+        $order->set_shipping_postcode( sanitize_text_field( $address['postal_code'] ?? '' ) );
+        $order->set_shipping_country( sanitize_text_field( $address['country'] ?? '' ) );
+        $order->set_shipping_state( sanitize_text_field( $address['state'] ?? '' ) );
+
+        $order->set_payment_method( $this->id );
+        $order->set_payment_method_title( $this->title );
+        $order->calculate_totals();
+        $order->update_status( 'pending', 'In attesa di conferma Stripe (Express Checkout).' );
+        $order->save();
+
+        try {
+            $args = [
+                'amount'         => $this->get_stripe_amount( (float) $order->get_total(), $order->get_currency() ),
+                'currency'       => strtolower( $order->get_currency() ),
+                'capture_method' => $this->get_option( 'capture_mode', 'automatic' ),
+                'automatic_payment_methods' => [ 'enabled' => true ],
+                'metadata'       => [ 'order_id' => $order->get_id() ],
+            ];
+
+            $pmc = $this->get_option( 'payment_method_config_id' );
+            if ( $pmc ) {
+                $args['payment_method_configuration'] = $pmc;
+                unset( $args['automatic_payment_methods'] );
+            }
+
+            $intent = $this->get_api()->create_payment_intent( $args );
+            $order->update_meta_data( '_ctstripe_intent_id', $intent['id'] );
+            $order->save();
+
+            WC()->cart->empty_cart();
+
+            wp_send_json_success( [ 'client_secret' => $intent['client_secret'] ] );
+
+        } catch ( \Exception $e ) {
+            $order->update_status( 'failed', 'Errore Stripe: ' . $e->getMessage() );
+            $order->save();
+            wp_send_json_error( [ 'message' => $e->getMessage() ] );
+        }
     }
 
     public function process_refund( $order_id, $amount = null, $reason = '' ) {

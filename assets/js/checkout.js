@@ -13,6 +13,7 @@
     var peInstance  = null;
     var peMounted   = false;
     var eceActive   = false;
+    var eceEvent    = null; // ECE confirm event — holds paymentFailed() for error handling
 
     var appearanceCfg = ctstripe.appearance || {};
     var appearance = {
@@ -81,24 +82,69 @@
         el.on( 'ready', function ( event ) {
             var hasButtons = event.availablePaymentMethods &&
                 Object.values( event.availablePaymentMethods ).some( Boolean );
-            container.style.display = hasButtons ? '' : 'none';
+
+            // Hide/show the wrapper (includes notice) or the container itself.
+            var wrapper = container.closest( '[data-ctstripe-ece-wrapper]' );
+            if ( wrapper ) {
+                wrapper.style.display = hasButtons ? '' : 'none';
+            } else {
+                container.style.display = hasButtons ? '' : 'none';
+            }
 
             if ( hasButtons ) {
                 $( '#ctstripe-separator' ).show();
             }
         } );
 
-        el.on( 'confirm', function () {
-            // Capture which elements instance triggered the confirmation.
+        el.on( 'confirm', function ( event ) {
             eceElems = elems;
-
-            if ( ! isOurGateway() ) {
-                $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
-                    .prop( 'checked', true )
-                    .trigger( 'change' );
-            }
+            eceEvent = event;
             eceActive = true;
-            $( 'form.checkout' ).submit();
+
+            if ( $( 'form.checkout' ).length ) {
+                // Checkout page: submit WC form; payment confirmed in ajaxComplete.
+                if ( ! isOurGateway() ) {
+                    $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
+                        .prop( 'checked', true )
+                        .trigger( 'change' );
+                }
+                $( 'form.checkout' ).submit();
+            } else {
+                // Outside checkout: create order via AJAX with Apple Pay billing details.
+                $.ajax( {
+                    url:      ctstripe.ajax_url,
+                    type:     'POST',
+                    dataType: 'json',
+                    data: {
+                        action:  'ctstripe_create_order',
+                        nonce:   ctstripe.nonce,
+                        billing: JSON.stringify( event.billingDetails || {} ),
+                    },
+                    success: function ( response ) {
+                        if ( ! response.success ) {
+                            if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
+                            eceActive = false;
+                            return;
+                        }
+                        clearError();
+                        stripe.confirmPayment( {
+                            elements:      eceElems,
+                            clientSecret:  response.data.client_secret,
+                            confirmParams: { return_url: ctstripe.return_url },
+                        } ).then( function ( result ) {
+                            if ( result.error ) {
+                                if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
+                                showError( result.error.message );
+                            }
+                            eceActive = false;
+                        } );
+                    },
+                    error: function () {
+                        if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
+                        eceActive = false;
+                    },
+                } );
+            }
         } );
 
         el.mount( '#' + containerId );
@@ -144,6 +190,7 @@
 
         if ( data.result !== 'success' ) {
             eceActive = false;
+            if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
             $( '#place_order' ).prop( 'disabled', false );
             return;
         }
@@ -166,6 +213,7 @@
                 confirmParams: { return_url: ctstripe.return_url },
             } ).then( function ( result ) {
                 if ( result.error ) {
+                    if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                     showError( result.error.message );
                     $( '#place_order' ).prop( 'disabled', false );
                 }
