@@ -1,4 +1,4 @@
-/* global ctstripe, Stripe */
+/* global ctstripe, Stripe */ /* CTStripe v1.6.2 */
 ( function ( $ ) {
     'use strict';
 
