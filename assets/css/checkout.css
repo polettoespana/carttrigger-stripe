@@ -4,6 +4,7 @@
 }
 
 #payment .payment_box.payment_method_ctstripe {
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
     background: transparent;
 }
