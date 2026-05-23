@@ -75,7 +75,7 @@ add_action( 'plugins_loaded', function () {
 
     ( new CTStripe_Webhook() )->init();
 
-    // Allow Stripe domains in Content-Security-Policy.
+    // Security headers: CSP, CORS and Permissions-Policy for Stripe + hCaptcha.
     add_filter( 'wp_headers', function ( $headers ) {
         $stripe_domains = implode( ' ', [
             'https://*.stripe.com',
@@ -84,6 +84,7 @@ add_action( 'plugins_loaded', function () {
             'https://*.hcaptcha.com',
         ] );
 
+        // Content-Security-Policy.
         if ( isset( $headers['Content-Security-Policy'] ) ) {
             $csp = $headers['Content-Security-Policy'];
             foreach ( [ 'frame-src', 'script-src', 'connect-src', 'img-src', 'style-src' ] as $directive ) {
@@ -95,6 +96,21 @@ add_action( 'plugins_loaded', function () {
             }
             $headers['Content-Security-Policy'] = $csp;
         }
+
+        // CORS: allow Stripe CDN to make cross-origin requests to this server.
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+        $allowed_origins = [ 'https://b.stripecdn.com', 'https://js.stripe.com', 'https://stripe.com' ];
+        if ( in_array( $origin, $allowed_origins, true ) ) {
+            $headers['Access-Control-Allow-Origin']  = $origin;
+            $headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
+            $headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+            $headers['Vary']                         = 'Origin';
+        }
+
+        // Permissions-Policy: allow camera/microphone for hCaptcha (Stripe antifraud).
+        $pp = $headers['Permissions-Policy'] ?? '';
+        $hcaptcha_policy = 'camera=(self "https://newassets.hcaptcha.com"), microphone=(self "https://newassets.hcaptcha.com")';
+        $headers['Permissions-Policy'] = $pp ? $pp . ', ' . $hcaptcha_policy : $hcaptcha_policy;
 
         return $headers;
     } );
