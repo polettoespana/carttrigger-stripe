@@ -83,6 +83,13 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             true
         );
 
+        wp_enqueue_style(
+            'ctstripe-checkout',
+            CTSTRIPE_URL . 'assets/css/checkout.css',
+            [],
+            CTSTRIPE_VERSION
+        );
+
         wp_enqueue_script(
             'ctstripe-checkout',
             CTSTRIPE_URL . 'assets/js/checkout.js',

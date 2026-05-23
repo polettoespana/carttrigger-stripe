@@ -38,7 +38,14 @@
             },
         } );
 
-        paymentElement = elements.create( 'payment' );
+        paymentElement = elements.create( 'payment', {
+            layout: {
+                type:                 'accordion',
+                defaultCollapsed:     false,
+                radios:               true,
+                spacedAccordionItems: true,
+            },
+        } );
         paymentElement.mount( '#ctstripe-payment-element' );
         mounted = true;
     }

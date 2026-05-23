@@ -1,0 +1,9 @@
+#ctstripe-payment-element {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#payment .payment_box.payment_method_ctstripe {
+    padding: 0;
+    background: transparent;
+}
