@@ -79,7 +79,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'stripe-js',
             'https://js.stripe.com/v3/',
             [],
-            false, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Stripe CDN manages its own versioning via the URL path.
+            '3',
             true
         );
 

@@ -98,9 +98,9 @@ class CTStripe_Webhook {
         }
 
         // Fallback: search by intent id stored in meta.
-        $orders = wc_get_orders( [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- lookup by indexed payment intent ID, executed only from webhook handler.
-            'meta_key'   => '_ctstripe_intent_id',
-            'meta_value' => $intent['id'],
+        $orders = wc_get_orders( [
+            'meta_key'   => '_ctstripe_intent_id', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- intent ID lookup, executed only from webhook handler.
+            'meta_value' => $intent['id'], // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- intent ID lookup, executed only from webhook handler.
             'limit'      => 1,
         ] );
 
@@ -117,9 +117,8 @@ class CTStripe_Webhook {
             return;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- parameters are set by Stripe redirect, not a user form submission.
-        $intent_id     = sanitize_text_field( wp_unslash( $_GET['payment_intent'] ?? '' ) );
-        $client_secret = sanitize_text_field( wp_unslash( $_GET['payment_intent_client_secret'] ?? '' ) );
+        $intent_id     = sanitize_text_field( wp_unslash( $_GET['payment_intent'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- parameters set by Stripe redirect, not a user form.
+        $client_secret = sanitize_text_field( wp_unslash( $_GET['payment_intent_client_secret'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- parameters set by Stripe redirect, not a user form.
 
         if ( ! $intent_id ) {
             wp_safe_redirect( wc_get_checkout_url() );
