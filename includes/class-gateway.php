@@ -182,6 +182,16 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 ],
                 'default' => 'automatic',
             ],
+            // ── Layout Payment Element ───────────────────────────────────────
+            'pe_layout'              => [
+                'title'   => 'Layout metodi di pagamento',
+                'type'    => 'select',
+                'options' => [
+                    'accordion' => 'Accordion (lista verticale)',
+                    'tabs'      => 'Tabs (riga orizzontale scorrevole)',
+                ],
+                'default' => 'accordion',
+            ],
             // ── Express Checkout ─────────────────────────────────────────────
             'express_in_payment_box' => [
                 'title'   => 'Pulsanti express nel box pagamento',
@@ -269,6 +279,11 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'fields' => [ 'payment_method_config_id', 'capture_mode' ],
             ],
             [
+                'title'  => 'Layout metodi di pagamento',
+                'icon'   => 'dashicons-menu-alt',
+                'fields' => [ 'pe_layout' ],
+            ],
+            [
                 'title'  => 'Express Checkout',
                 'icon'   => 'dashicons-smartphone',
                 'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns' ],
@@ -348,6 +363,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
+            'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
             'appearance'      => array_filter( [

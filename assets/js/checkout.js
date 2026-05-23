@@ -118,14 +118,11 @@
 
         peElems = stripe.elements( elementsParams() );
 
-        peInstance = peElems.create( 'payment', {
-            layout: {
-                type:                 'accordion',
-                defaultCollapsed:     false,
-                radios:               true,
-                spacedAccordionItems: true,
-            },
-        } );
+        var peLayout = ctstripe.pe_layout === 'tabs'
+            ? { type: 'tabs' }
+            : { type: 'accordion', defaultCollapsed: false, radios: true, spacedAccordionItems: true };
+
+        peInstance = peElems.create( 'payment', { layout: peLayout } );
 
         peInstance.mount( '#ctstripe-payment-element' );
         peMounted = true;
