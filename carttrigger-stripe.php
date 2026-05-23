@@ -55,28 +55,38 @@ add_action( 'plugins_loaded', function () {
         return $headers;
     } );
 
-    // Render express checkout buttons based on gateway settings.
-    add_action( 'woocommerce_before_checkout_form', function () {
-        $gateways  = WC()->payment_gateways()->payment_gateways();
-        $gateway   = $gateways['ctstripe'] ?? null;
-        if ( ! $gateway || ! $gateway->is_available() ) {
-            return;
-        }
-        $locations = (array) $gateway->get_option( 'express_locations', [ 'checkout', 'payment' ] );
-        if ( in_array( 'checkout', $locations, true ) ) {
-            echo '<div id="ctstripe-ece-global" style="margin-bottom:16px;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
-        }
-    }, 5 );
-
-    add_action( 'woocommerce_before_cart', function () {
-        $gateways  = WC()->payment_gateways()->payment_gateways();
-        $gateway   = $gateways['ctstripe'] ?? null;
-        if ( ! $gateway || ! $gateway->is_available() ) {
-            return;
-        }
-        $locations = (array) $gateway->get_option( 'express_locations', [ 'checkout', 'payment' ] );
-        if ( in_array( 'cart', $locations, true ) ) {
-            echo '<div id="ctstripe-ece-global" style="margin-bottom:16px;"></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static HTML, no user input.
-        }
-    }, 5 );
+    // Shortcode [ctstripe_express_checkout].
+    add_shortcode( 'ctstripe_express_checkout', 'ctstripe_express_checkout_shortcode' );
 } );
+
+/**
+ * Renders an Express Checkout Element container and enqueues scripts.
+ *
+ * Usage: [ctstripe_express_checkout class="my-class" style="margin-bottom:16px;"]
+ */
+function ctstripe_express_checkout_shortcode( $atts ): string {
+    $gateways = WC()->payment_gateways()->payment_gateways();
+    $gateway  = $gateways['ctstripe'] ?? null;
+
+    if ( ! $gateway || ! $gateway->is_available() ) {
+        return '';
+    }
+
+    $atts = shortcode_atts(
+        [
+            'class' => '',
+            'style' => '',
+            'id'    => 'ctstripe-ece-' . wp_unique_id(),
+        ],
+        $atts,
+        'ctstripe_express_checkout'
+    );
+
+    // Enqueue scripts — safe to call here, WP collects and outputs in footer.
+    $gateway->enqueue_scripts();
+
+    $class = $atts['class'] ? ' class="' . esc_attr( $atts['class'] ) . '"' : '';
+    $style = $atts['style'] ? ' style="' . esc_attr( $atts['style'] ) . '"' : '';
+
+    return '<div id="' . esc_attr( $atts['id'] ) . '"' . $class . $style . ' data-ctstripe-ece></div>';
+}

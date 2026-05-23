@@ -203,11 +203,10 @@
     // ── Init on load ──────────────────────────────────────────────────────────
 
     $( function () {
-        // Express buttons inside payment box.
-        initECE( 'ctstripe-express-checkout-element' );
-
-        // Express buttons above checkout form (WC renders #ctstripe-ece-global here).
-        initECE( 'ctstripe-ece-global' );
+        // Mount ECE in every container marked with data-ctstripe-ece.
+        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( el ) {
+            initECE( el.id );
+        } );
 
         if ( isOurGateway() ) {
             initPE();
