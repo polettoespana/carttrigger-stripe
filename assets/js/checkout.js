@@ -230,6 +230,21 @@
         } );
     } );
 
+    // ── Cart page: re-init ECE after WC cart fragment refresh ────────────────
+
+    $( document.body ).on( 'updated_cart wc_fragments_refreshed', function () {
+        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( domEl ) {
+            if ( domEl.querySelector( 'iframe' ) ) {
+                return; // still mounted, nothing to do
+            }
+            if ( eceMounted[ domEl.id ] ) {
+                try { eceMounted[ domEl.id ].el.unmount(); } catch ( e ) {}
+                delete eceMounted[ domEl.id ];
+            }
+            initECE( domEl.id );
+        } );
+    } );
+
     // ── Gateway selection ─────────────────────────────────────────────────────
 
     $( document.body ).on( 'payment_method_selected', function () {
