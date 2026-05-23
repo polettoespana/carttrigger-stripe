@@ -383,8 +383,9 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         );
 
         wp_localize_script( 'ctstripe-checkout', 'ctstripe', [
-            'ajax_url'        => add_query_arg( 'wc-ajax', 'ctstripe_create_order', home_url( '/' ) ),
-            'nonce'           => wp_create_nonce( 'ctstripe_create_order' ),
+            'ajax_url'             => add_query_arg( 'wc-ajax', 'ctstripe_create_order', home_url( '/' ) ),
+            'normalize_state_url'  => add_query_arg( 'wc-ajax', 'ctstripe_normalize_state', home_url( '/' ) ),
+            'nonce'                => wp_create_nonce( 'ctstripe_create_order' ),
             'publishable_key' => $this->get_option( 'publishable_key' ),
             'return_url'      => home_url( '/ctstripe-return' ),
             'locale'          => $this->get_stripe_locale(),
@@ -572,8 +573,10 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         $order->set_billing_address_2( sanitize_text_field( $address['line2'] ?? '' ) );
         $order->set_billing_city( sanitize_text_field( $address['city'] ?? '' ) );
         $order->set_billing_postcode( sanitize_text_field( $address['postal_code'] ?? '' ) );
-        $order->set_billing_country( sanitize_text_field( $address['country'] ?? '' ) );
-        $order->set_billing_state( sanitize_text_field( $address['state'] ?? '' ) );
+        $billing_country = sanitize_text_field( $address['country'] ?? '' );
+        $billing_state   = $this->normalize_state( $billing_country, sanitize_text_field( $address['state'] ?? '' ) );
+        $order->set_billing_country( $billing_country );
+        $order->set_billing_state( $billing_state );
 
         // Mirror billing → shipping.
         $order->set_shipping_first_name( sanitize_text_field( $first_name ) );
@@ -582,8 +585,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         $order->set_shipping_address_2( sanitize_text_field( $address['line2'] ?? '' ) );
         $order->set_shipping_city( sanitize_text_field( $address['city'] ?? '' ) );
         $order->set_shipping_postcode( sanitize_text_field( $address['postal_code'] ?? '' ) );
-        $order->set_shipping_country( sanitize_text_field( $address['country'] ?? '' ) );
-        $order->set_shipping_state( sanitize_text_field( $address['state'] ?? '' ) );
+        $order->set_shipping_country( $billing_country );
+        $order->set_shipping_state( $billing_state );
 
         $order->set_payment_method( $this->id );
         $order->set_payment_method_title( $this->title );
@@ -619,6 +622,40 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             $order->save();
             wp_send_json_error( [ 'message' => $e->getMessage() ] );
         }
+    }
+
+    private function normalize_state( string $country, string $state ): string {
+        if ( ! $country || ! $state ) {
+            return $state;
+        }
+        $wc_states = WC()->countries->get_states( $country );
+        if ( ! is_array( $wc_states ) ) {
+            return $state;
+        }
+        // Already a valid code.
+        if ( isset( $wc_states[ strtoupper( $state ) ] ) ) {
+            return strtoupper( $state );
+        }
+        // Case-insensitive match against state names.
+        foreach ( $wc_states as $code => $name ) {
+            if ( preg_match( '/' . preg_quote( $name, '/' ) . '/i', $state ) ||
+                 preg_match( '/' . preg_quote( $state, '/' ) . '/i', $name ) ) {
+                return $code;
+            }
+        }
+        return $state;
+    }
+
+    public function ajax_normalize_state(): void {
+        if ( ! check_ajax_referer( 'ctstripe_create_order', 'nonce', false ) ) {
+            wp_send_json_error( [ 'message' => 'Nonce non valido.' ] );
+            return;
+        }
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified above
+        $country = sanitize_text_field( wp_unslash( $_POST['country'] ?? '' ) );
+        $state   = sanitize_text_field( wp_unslash( $_POST['state'] ?? '' ) );
+        // phpcs:enable
+        wp_send_json_success( [ 'state' => $this->normalize_state( $country, $state ) ] );
     }
 
     public function process_refund( $order_id, $amount = null, $reason = '' ) {

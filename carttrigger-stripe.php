@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.6.1
+ * Version:     1.6.2
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.6.1' );
+define( 'CTSTRIPE_VERSION', '1.6.2' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -89,6 +89,20 @@ add_action( 'plugins_loaded', function () {
     // Fallback via admin-ajax.php (e.g. if WC AJAX endpoint unavailable).
     add_action( 'wp_ajax_ctstripe_create_order', $ctstripe_create_order_handler );
     add_action( 'wp_ajax_nopriv_ctstripe_create_order', $ctstripe_create_order_handler );
+
+    // State normalization endpoint — converts Apple Pay full state names to WC codes.
+    $ctstripe_normalize_state_handler = function () {
+        $gateways = WC()->payment_gateways()->payment_gateways();
+        $gateway  = $gateways['ctstripe'] ?? null;
+        if ( $gateway ) {
+            $gateway->ajax_normalize_state();
+        } else {
+            wp_send_json_error( [ 'message' => 'Gateway non disponibile.' ] );
+        }
+    };
+    add_action( 'wc_ajax_ctstripe_normalize_state', $ctstripe_normalize_state_handler );
+    add_action( 'wp_ajax_ctstripe_normalize_state', $ctstripe_normalize_state_handler );
+    add_action( 'wp_ajax_nopriv_ctstripe_normalize_state', $ctstripe_normalize_state_handler );
 
     ( new CTStripe_Webhook() )->init();
 

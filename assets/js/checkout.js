@@ -123,20 +123,56 @@
                     return;
                 }
 
-                // Non sovrascrivere i campi billing con i dati di Apple Pay:
-                // l'utente loggato ha già i campi precompilati correttamente e
-                // le <select> di stato/provincia hanno codici specifici che non
-                // corrispondono ai valori restituiti da Apple Pay.
-                // Apple Pay viene usato solo come metodo di pagamento, non come
-                // fonte dei dati di fatturazione.
+                // Popola solo i campi billing vuoti (utente guest) con i dati di Apple Pay.
+                // Per l'utente loggato i campi sono già precompilati — non vengono sovrascritti.
+                // Lo stato/provincia viene normalizzato server-side perché Apple Pay restituisce
+                // il nome completo (es. "Madrid") mentre WC si aspetta il codice (es. "M").
+                var eceBilling = event.billingDetails || {};
+                var eceAddress = eceBilling.address   || {};
+                var eceCountry = eceAddress.country   || '';
+                var eceState   = eceAddress.state     || '';
 
-                // Checkout page: submit WC form; payment confirmed in ajaxComplete.
-                if ( ! isOurGateway() ) {
-                    $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
-                        .prop( 'checked', true );
+                function submitCheckoutForm() {
+                    if ( ! isOurGateway() ) {
+                        $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
+                            .prop( 'checked', true );
+                    }
+                    console.log( '[CTStripe] submitting form.checkout, processing:', $( 'form.checkout' ).is( '.processing' ) );
+                    $( 'form.checkout' ).submit();
                 }
-                console.log( '[CTStripe] submitting form.checkout, processing:', $( 'form.checkout' ).is( '.processing' ) );
-                $( 'form.checkout' ).submit();
+
+                function fillEmptyBillingAndSubmit( normalizedState ) {
+                    var nameParts = ( eceBilling.name || '' ).split( ' ' );
+                    var first = nameParts.shift() || '';
+                    var last  = nameParts.join( ' ' );
+                    if ( ! $( '#billing_first_name' ).val() && first )                  { $( '#billing_first_name' ).val( first ); }
+                    if ( ! $( '#billing_last_name' ).val() && last )                    { $( '#billing_last_name' ).val( last ); }
+                    if ( ! $( '#billing_email' ).val() && eceBilling.email )            { $( '#billing_email' ).val( eceBilling.email ); }
+                    if ( ! $( '#billing_phone' ).val() && eceBilling.phone )            { $( '#billing_phone' ).val( eceBilling.phone ); }
+                    if ( ! $( '#billing_address_1' ).val() && eceAddress.line1 )        { $( '#billing_address_1' ).val( eceAddress.line1 ); }
+                    if ( ! $( '#billing_address_2' ).val() && eceAddress.line2 )        { $( '#billing_address_2' ).val( eceAddress.line2 ); }
+                    if ( ! $( '#billing_city' ).val() && eceAddress.city )              { $( '#billing_city' ).val( eceAddress.city ); }
+                    if ( ! $( '#billing_postcode' ).val() && eceAddress.postal_code )   { $( '#billing_postcode' ).val( eceAddress.postal_code ); }
+                    if ( ! $( '#billing_country' ).val() && eceCountry )               { $( '#billing_country' ).val( eceCountry ); }
+                    if ( ! $( '#billing_state' ).val() && normalizedState )             { $( '#billing_state' ).val( normalizedState ); }
+                    submitCheckoutForm();
+                }
+
+                if ( eceState && eceCountry ) {
+                    $.ajax( {
+                        url:  ctstripe.normalize_state_url,
+                        type: 'POST',
+                        data: { nonce: ctstripe.nonce, country: eceCountry, state: eceState },
+                        success: function ( response ) {
+                            fillEmptyBillingAndSubmit( response.success ? ( response.data.state || eceState ) : eceState );
+                        },
+                        error: function () {
+                            fillEmptyBillingAndSubmit( eceState );
+                        },
+                    } );
+                } else {
+                    fillEmptyBillingAndSubmit( eceState );
+                }
             } else {
                 // Outside checkout: create order via AJAX with Apple Pay billing details.
                 console.log( '[CTStripe] calling ajax_url:', ctstripe.ajax_url );
