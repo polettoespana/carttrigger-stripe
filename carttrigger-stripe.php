@@ -16,6 +16,50 @@ define( 'CTSTRIPE_VERSION', '1.0.0' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
+register_activation_hook( __FILE__, function () {
+    add_rewrite_rule(
+        '^\.well-known/apple-developer-merchantid-domain-association$',
+        'index.php?ctstripe_apple_pay=1',
+        'top'
+    );
+    flush_rewrite_rules();
+} );
+
+// Apple Pay domain verification endpoint.
+add_action( 'init', function () {
+    add_rewrite_rule(
+        '^\.well-known/apple-developer-merchantid-domain-association$',
+        'index.php?ctstripe_apple_pay=1',
+        'top'
+    );
+} );
+
+add_filter( 'query_vars', function ( $vars ) {
+    $vars[] = 'ctstripe_apple_pay';
+    return $vars;
+} );
+
+add_action( 'template_redirect', function () {
+    if ( ! get_query_var( 'ctstripe_apple_pay' ) ) {
+        return;
+    }
+    if ( ! class_exists( 'WooCommerce' ) ) {
+        status_header( 404 );
+        exit;
+    }
+    $gateways = WC()->payment_gateways()->payment_gateways();
+    $gateway  = $gateways['ctstripe'] ?? null;
+    $content  = $gateway ? trim( $gateway->get_option( 'apple_pay_domain_verification', '' ) ) : '';
+    if ( ! $content ) {
+        status_header( 404 );
+        exit;
+    }
+    header( 'Content-Type: text/plain; charset=utf-8' );
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    echo $content;
+    exit;
+} );
+
 add_action( 'plugins_loaded', function () {
     if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
         return;

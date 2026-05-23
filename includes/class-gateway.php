@@ -54,6 +54,13 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'type'        => 'password',
                 'description' => 'Signing secret del webhook Stripe (whsec_…). Endpoint: ' . home_url( '/wc-api/ctstripe_webhook' ),
             ],
+            'apple_pay_domain_verification' => [
+                'title'       => 'Apple Pay – File di verifica dominio',
+                'type'        => 'textarea',
+                'description' => 'Incolla qui il contenuto del file fornito da Stripe (<em>Dashboard → Settings → Payment methods → Apple Pay → Add domain</em>). Verrà servito automaticamente su: <code>' . esc_html( home_url( '/.well-known/apple-developer-merchantid-domain-association' ) ) . '</code><br>Dopo aver salvato, vai su <strong>Impostazioni → Permalink</strong> e clicca Salva per aggiornare le regole di riscrittura.',
+                'default'     => '',
+                'css'         => 'height:80px;font-family:monospace;font-size:11px;',
+            ],
             'payment_method_config_id' => [
                 'title'       => 'Payment Method Configuration ID',
                 'type'        => 'text',
