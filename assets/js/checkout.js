@@ -156,6 +156,7 @@
                     },
                     success: function ( response ) {
                         if ( ! response.success ) {
+                            console.error( '[CTStripe] ajax_create_order failed:', response );
                             if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                             eceActive = false;
                             return;
@@ -167,6 +168,7 @@
                             confirmParams: { return_url: ctstripe.return_url },
                         } ).then( function ( result ) {
                             if ( result.error ) {
+                                console.error( '[CTStripe] confirmPayment error (cart):', result.error );
                                 if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                                 showError( result.error.message );
                                 eceActive = false;
@@ -255,6 +257,7 @@
                 confirmParams: { return_url: ctstripe.return_url },
             } ).then( function ( result ) {
                 if ( result.error ) {
+                    console.error( '[CTStripe] confirmPayment error (checkout):', result.error );
                     if ( eceEvent ) { eceEvent.paymentFailed( { reason: 'fail' } ); }
                     showError( result.error.message );
                     $( '#place_order' ).prop( 'disabled', false );
