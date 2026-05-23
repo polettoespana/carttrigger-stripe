@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,12 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.1.0 =
+* Express Checkout Element (Apple Pay / Google Pay) con shortcode `[ctstripe_express_checkout]`.
+* Endpoint automatico per la verifica del dominio Apple Pay (`.well-known`).
+* Re-mount del Payment Element dopo aggiornamento AJAX del checkout WooCommerce.
+* Impostazioni per altezza e layout (colonne) dei pulsanti express.
 
 = 1.0.0 =
 * Initial release.
