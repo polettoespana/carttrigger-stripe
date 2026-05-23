@@ -113,9 +113,13 @@
                 // Validate T&C before opening the payment sheet.
                 var $terms = $( '#terms' );
                 if ( $terms.length && ! $terms.is( ':checked' ) ) {
+                    console.log( '[CTStripe] T&C not checked — aborting ECE' );
                     eceEvent.paymentFailed( { reason: 'fail' } );
                     eceActive = false;
                     $terms[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
+                    $( '.woocommerce-terms-and-conditions-checkbox-text' )
+                        .closest( '.form-row' )
+                        .addClass( 'woocommerce-invalid' );
                     return;
                 }
 
