@@ -123,28 +123,14 @@
                     return;
                 }
 
-                // Populate WC billing fields from Apple Pay billingDetails so WC
-                // validation doesn't reject the form for empty required fields.
-                var eceBilling  = event.billingDetails || {};
-                var eceAddress  = eceBilling.address || {};
-                var eceNameParts = ( eceBilling.name || '' ).split( ' ' );
-                var eceFirst    = eceNameParts.shift() || '';
-                var eceLast     = eceNameParts.join( ' ' );
-                if ( eceFirst )                 { $( '#billing_first_name' ).val( eceFirst ); }
-                if ( eceLast )                  { $( '#billing_last_name' ).val( eceLast ); }
-                if ( eceBilling.email )         { $( '#billing_email' ).val( eceBilling.email ); }
-                if ( eceBilling.phone )         { $( '#billing_phone' ).val( eceBilling.phone ); }
-                if ( eceAddress.line1 )         { $( '#billing_address_1' ).val( eceAddress.line1 ); }
-                if ( eceAddress.line2 )         { $( '#billing_address_2' ).val( eceAddress.line2 ); }
-                if ( eceAddress.city )          { $( '#billing_city' ).val( eceAddress.city ); }
-                if ( eceAddress.postal_code )   { $( '#billing_postcode' ).val( eceAddress.postal_code ); }
-                // No .trigger('change') — evita che WC avvii update_order_review AJAX
-                // che imposta .processing sul form bloccando il submit successivo.
-                if ( eceAddress.country )       { $( '#billing_country' ).val( eceAddress.country ); }
-                if ( eceAddress.state )         { $( '#billing_state' ).val( eceAddress.state ); }
+                // Non sovrascrivere i campi billing con i dati di Apple Pay:
+                // l'utente loggato ha già i campi precompilati correttamente e
+                // le <select> di stato/provincia hanno codici specifici che non
+                // corrispondono ai valori restituiti da Apple Pay.
+                // Apple Pay viene usato solo come metodo di pagamento, non come
+                // fonte dei dati di fatturazione.
 
                 // Checkout page: submit WC form; payment confirmed in ajaxComplete.
-                // prop('checked') senza trigger('change') per evitare un secondo update AJAX.
                 if ( ! isOurGateway() ) {
                     $( 'input[name="payment_method"][value="' + ctstripe.gateway_id + '"]' )
                         .prop( 'checked', true );

@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.6.1 =
+* Fix: ECE checkout page — rimossa la sovrascrittura dei campi billing con i dati di Apple Pay; l'utente loggato ha già i campi precompilati correttamente e i codici stato/provincia di Apple Pay non corrispondono ai valori delle <select> WooCommerce.
 
 = 1.6.0 =
 * Fix: endpoint AJAX per la creazione ordine ECE spostato da admin-ajax.php a ?wc-ajax= (WooCommerce endpoint) — risolve i 400 causati da WAF o dall'istanziazione lazy del gateway che impediva la registrazione delle hook su admin-ajax.php.
