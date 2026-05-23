@@ -228,6 +228,24 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'default'     => '0',
                 'custom_attributes' => [ 'min' => '0', 'step' => '1' ],
             ],
+            'ece_show_link'      => [
+                'title'   => 'Stripe Link',
+                'type'    => 'checkbox',
+                'label'   => 'Mostra Stripe Link nell\'Express Checkout',
+                'default' => 'yes',
+            ],
+            'ece_show_paypal'    => [
+                'title'   => 'PayPal',
+                'type'    => 'checkbox',
+                'label'   => 'Mostra PayPal nell\'Express Checkout',
+                'default' => 'yes',
+            ],
+            'ece_show_amazon_pay' => [
+                'title'   => 'Amazon Pay',
+                'type'    => 'checkbox',
+                'label'   => 'Mostra Amazon Pay nell\'Express Checkout',
+                'default' => 'yes',
+            ],
             // ── Shortcode (solo per admin_options, non nel form WC standard) ─
             'shortcode_info'     => [
                 'title'       => 'Shortcode pulsanti express',
@@ -299,7 +317,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             [
                 'title'  => 'Express Checkout',
                 'icon'   => 'dashicons-smartphone',
-                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns', 'ece_max_rows' ],
+                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns', 'ece_max_rows', 'ece_show_link', 'ece_show_paypal', 'ece_show_amazon_pay' ],
             ],
             [
                 'title'     => 'Shortcode pulsanti express',
@@ -383,6 +401,11 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
             'ece_max_rows'    => (int) $this->get_option( 'ece_max_rows', 0 ),
+            'ece_payment_methods' => [
+                'link'      => $this->get_option( 'ece_show_link', 'yes' ) === 'yes' ? 'auto' : 'never',
+                'paypal'    => $this->get_option( 'ece_show_paypal', 'yes' ) === 'yes' ? 'auto' : 'never',
+                'amazonPay' => $this->get_option( 'ece_show_amazon_pay', 'yes' ) === 'yes' ? 'auto' : 'never',
+            ],
             'appearance'      => array_filter( [
                 'theme'        => $this->get_option( 'appearance_theme', 'stripe' ),
                 'colorPrimary'    => $this->get_option( 'appearance_color_primary', '' ),
