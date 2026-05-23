@@ -129,6 +129,43 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'default'     => '4px',
                 'placeholder' => '4px',
             ],
+            'appearance_spacing_unit'     => [
+                'title'       => 'Spacing unit',
+                'type'        => 'text',
+                'description' => 'Unità base per spaziatura interna (es. <code>4px</code>, <code>6px</code>). Lascia vuoto per default Stripe.',
+                'default'     => '',
+                'placeholder' => '4px',
+            ],
+            'appearance_font_size_base'   => [
+                'title'       => 'Font size base',
+                'type'        => 'text',
+                'description' => 'Dimensione testo dei label e input (es. <code>14px</code>, <code>1rem</code>). Lascia vuoto per default Stripe.',
+                'default'     => '',
+                'placeholder' => '16px',
+            ],
+            'appearance_rules'            => [
+                'title'       => 'CSS Rules (JSON)',
+                'type'        => 'textarea',
+                'description' => 'Regole CSS avanzate in formato JSON per targetare componenti interni Stripe.<br>
+                    Selettori utili: <code>.AccordionItem</code>, <code>.Input</code>, <code>.Label</code>, <code>.Tab</code>.<br>
+                    Esempio:<br><pre style="font-size:11px;background:#f6f7f7;padding:8px;border-radius:4px;overflow:auto;">{
+  ".AccordionItem": {
+    "border": "1px solid #e8eaed",
+    "borderRadius": "6px",
+    "boxShadow": "none"
+  },
+  ".Input": {
+    "borderColor": "#c3c4c7",
+    "boxShadow": "none"
+  },
+  ".Label": {
+    "fontWeight": "600",
+    "fontSize": "13px"
+  }
+}</pre>',
+                'default'     => '',
+                'css'         => 'height:140px;font-family:monospace;font-size:11px;',
+            ],
             // ── Configurazione ───────────────────────────────────────────────
             'payment_method_config_id' => [
                 'title'       => 'Payment Method Configuration ID',
@@ -224,7 +261,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             [
                 'title'  => 'Aspetto Payment Element',
                 'icon'   => 'dashicons-art',
-                'fields' => [ 'appearance_theme', 'appearance_color_primary', 'appearance_color_background', 'appearance_color_text', 'appearance_color_danger', 'appearance_font_family', 'appearance_border_radius' ],
+                'fields' => [ 'appearance_theme', 'appearance_color_primary', 'appearance_color_background', 'appearance_color_text', 'appearance_color_danger', 'appearance_font_family', 'appearance_font_size_base', 'appearance_border_radius', 'appearance_spacing_unit', 'appearance_rules' ],
             ],
             [
                 'title'  => 'Configurazione pagamento',
@@ -314,13 +351,16 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'ece_height'      => max( 40, min( 55, (int) $this->get_option( 'ece_button_height', 44 ) ) ),
             'ece_columns'     => (int) $this->get_option( 'ece_columns', 2 ),
             'appearance'      => array_filter( [
-                'theme'           => $this->get_option( 'appearance_theme', 'stripe' ),
+                'theme'        => $this->get_option( 'appearance_theme', 'stripe' ),
                 'colorPrimary'    => $this->get_option( 'appearance_color_primary', '' ),
                 'colorBackground' => $this->get_option( 'appearance_color_background', '' ),
                 'colorText'       => $this->get_option( 'appearance_color_text', '' ),
                 'colorDanger'     => $this->get_option( 'appearance_color_danger', '' ),
                 'fontFamily'      => $this->get_option( 'appearance_font_family', '' ),
+                'fontSizeBase'    => $this->get_option( 'appearance_font_size_base', '' ),
                 'borderRadius'    => $this->get_option( 'appearance_border_radius', '4px' ),
+                'spacingUnit'     => $this->get_option( 'appearance_spacing_unit', '' ),
+                'rules'           => $this->get_option( 'appearance_rules', '' ),
             ] ),
         ] );
     }

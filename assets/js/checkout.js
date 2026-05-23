@@ -19,19 +19,19 @@
         theme:     appearanceCfg.theme || 'stripe',
         variables: {},
     };
-    var varMap = {
-        colorPrimary:    'colorPrimary',
-        colorBackground: 'colorBackground',
-        colorText:       'colorText',
-        colorDanger:     'colorDanger',
-        fontFamily:      'fontFamily',
-        borderRadius:    'borderRadius',
-    };
-    Object.keys( varMap ).forEach( function ( key ) {
+    var varKeys = [ 'colorPrimary', 'colorBackground', 'colorText', 'colorDanger', 'fontFamily', 'fontSizeBase', 'borderRadius', 'spacingUnit' ];
+    varKeys.forEach( function ( key ) {
         if ( appearanceCfg[ key ] ) {
-            appearance.variables[ varMap[ key ] ] = appearanceCfg[ key ];
+            appearance.variables[ key ] = appearanceCfg[ key ];
         }
     } );
+    if ( appearanceCfg.rules ) {
+        try {
+            appearance.rules = JSON.parse( appearanceCfg.rules );
+        } catch ( e ) {
+            // invalid JSON — ignore
+        }
+    }
 
     function cartAmount() {
         return parseInt( ctstripe.cart_amount, 10 );
