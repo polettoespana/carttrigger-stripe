@@ -26,8 +26,8 @@
     function elementsParams() {
         return {
             mode:       'payment',
-            amount:     cartAmount(),
-            currency:   ctstripe.cart_currency,
+            amount:     cartAmount() || 100, // fallback to avoid Stripe rejecting amount=0
+            currency:   ctstripe.cart_currency || 'eur',
             locale:     ctstripe.locale || 'auto',
             appearance: appearance,
         };
