@@ -98,7 +98,7 @@ class CTStripe_Webhook {
         }
 
         // Fallback: search by intent id stored in meta.
-        $orders = wc_get_orders( [
+        $orders = wc_get_orders( [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- lookup by indexed payment intent ID, executed only from webhook handler.
             'meta_key'   => '_ctstripe_intent_id',
             'meta_value' => $intent['id'],
             'limit'      => 1,
@@ -117,6 +117,7 @@ class CTStripe_Webhook {
             return;
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- parameters are set by Stripe redirect, not a user form submission.
         $intent_id     = sanitize_text_field( wp_unslash( $_GET['payment_intent'] ?? '' ) );
         $client_secret = sanitize_text_field( wp_unslash( $_GET['payment_intent_client_secret'] ?? '' ) );
 

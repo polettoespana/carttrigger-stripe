@@ -79,7 +79,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'stripe-js',
             'https://js.stripe.com/v3/',
             [],
-            null,
+            false, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Stripe CDN manages its own versioning via the URL path.
             true
         );
 
@@ -162,7 +162,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
     public function process_payment( $order_id ): array {
         $order     = wc_get_order( $order_id );
-        $intent_id = sanitize_text_field( wp_unslash( $_POST['ctstripe_intent_id'] ?? '' ) );
+        $intent_id = sanitize_text_field( wp_unslash( $_POST['ctstripe_intent_id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified by WooCommerce before process_payment() is called.
 
         if ( $intent_id ) {
             $order->update_meta_data( '_ctstripe_intent_id', $intent_id );

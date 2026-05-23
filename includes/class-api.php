@@ -32,9 +32,9 @@ class CTStripe_API {
         $signatures = [];
 
         foreach ( $parts as $part ) {
-            if ( str_starts_with( $part, 't=' ) ) {
+            if ( substr( $part, 0, 2 ) === 't=' ) {
                 $timestamp = substr( $part, 2 );
-            } elseif ( str_starts_with( $part, 'v1=' ) ) {
+            } elseif ( substr( $part, 0, 3 ) === 'v1=' ) {
                 $signatures[] = substr( $part, 3 );
             }
         }
@@ -79,13 +79,13 @@ class CTStripe_API {
         $response = wp_remote_request( $url, $args );
 
         if ( is_wp_error( $response ) ) {
-            throw new \Exception( $response->get_error_message() );
+            throw new \Exception( esc_html( $response->get_error_message() ) );
         }
 
         $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
         if ( isset( $data['error'] ) ) {
-            throw new \Exception( $data['error']['message'] ?? 'Stripe API error.' );
+            throw new \Exception( esc_html( $data['error']['message'] ?? 'Stripe API error.' ) );
         }
 
         return $data;
