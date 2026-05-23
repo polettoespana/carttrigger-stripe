@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,9 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.3.0 =
+* Nuova card "Aspetto Payment Element": tema, colori (primario, sfondo, testo, errori), font family, border radius — configurabili dall'admin senza toccare codice.
 
 = 1.2.0 =
 * Pannello admin con layout a card (coerente con gli altri plugin CartTrigger).
