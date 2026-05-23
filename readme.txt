@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,10 @@ CartTrigger – Stripe integrates Stripe's Payment Element into WooCommerce chec
    Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `payment_intent.canceled`
 
 == Changelog ==
+
+= 1.4.4 =
+* Ripristinato campo "Classe CSS titolo" con default font-grotesk, applicato al label WC via JS.
+* Fix: aggiunto autocomplete="new-password" sui campi Secret Key e Webhook Secret per evitare il prompt di salvataggio password del browser.
 
 = 1.4.3 =
 * Rimosso campo "Classe CSS titolo" — il titolo è gestito da WooCommerce.
