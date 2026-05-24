@@ -396,12 +396,33 @@
     // ── Cart page: re-init ECE after WC cart fragment refresh ────────────────
 
     $( document.body ).on( 'updated_cart wc_fragments_refreshed', function () {
-        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( domEl ) {
-            if ( domEl.querySelector( 'iframe' ) ) {
-                return; // still mounted, nothing to do
+        // Read updated cart amount from WC session storage (set by WC after fragment refresh).
+        var newAmount = null;
+        try {
+            for ( var i = 0; i < sessionStorage.length; i++ ) {
+                var key = sessionStorage.key( i );
+                if ( key && key.indexOf( 'wc_fragment_data' ) === 0 ) {
+                    var fd = JSON.parse( sessionStorage.getItem( key ) || '{}' );
+                    if ( fd.fragments && fd.fragments['ctstripe_cart_amount'] ) {
+                        newAmount = parseInt( fd.fragments['ctstripe_cart_amount'], 10 );
+                        ctstripe.cart_amount = newAmount;
+                        break;
+                    }
+                }
             }
-            if ( eceMounted[ domEl.id ] ) {
-                try { eceMounted[ domEl.id ].el.unmount(); } catch ( e ) {}
+        } catch ( e ) {}
+
+        document.querySelectorAll( '[data-ctstripe-ece]' ).forEach( function ( domEl ) {
+            var mounted = eceMounted[ domEl.id ];
+            if ( domEl.querySelector( 'iframe' ) ) {
+                // Still mounted — update amount so the next sheet opening shows the correct total.
+                if ( newAmount && mounted ) {
+                    mounted.elems.update( { amount: newAmount } );
+                }
+                return;
+            }
+            if ( mounted ) {
+                try { mounted.el.unmount(); } catch ( e ) {}
                 delete eceMounted[ domEl.id ];
             }
             initECE( domEl.id );

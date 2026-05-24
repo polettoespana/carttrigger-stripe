@@ -20,8 +20,9 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
         add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
 
-        // Keep cart amount in sync when WC recalculates order review.
+        // Keep cart amount in sync on checkout (order review) and cart page (coupon/qty changes).
         add_filter( 'woocommerce_update_order_review_fragments', [ $this, 'add_cart_amount_fragment' ] );
+        add_filter( 'woocommerce_cart_fragments', [ $this, 'add_cart_amount_fragment' ] );
     }
 
     public function init_form_fields(): void {
