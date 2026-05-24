@@ -386,6 +386,10 @@ msgstr ""
 msgid "Go to checkout to enter it and pay with your chosen method."
 msgstr ""
 
+#: includes/class-gateway.php
+msgid "Please read and accept the terms and conditions before paying."
+msgstr ""
+
 #. translators: 1: PaymentIntent ID, 2: payment method type
 #: includes/class-webhook.php
 msgid "Payment completed via Stripe. PaymentIntent: %1$s. Method: %2$s."

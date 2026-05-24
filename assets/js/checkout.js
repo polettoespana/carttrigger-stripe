@@ -110,10 +110,10 @@
                 // Checkout page: check T&C.
                 var $terms = $( '#terms' );
                 if ( $terms.length && ! $terms.is( ':checked' ) ) {
-                    $terms[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
-                    $( '.woocommerce-terms-and-conditions-checkbox-text' )
-                        .closest( '.form-row' )
-                        .addClass( 'woocommerce-invalid' );
+                    var $termsRow = $terms.closest( '.form-row' );
+                    $termsRow.addClass( 'woocommerce-invalid' );
+                    showError( ctstripe.i18n.terms_required );
+                    $termsRow[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
                     return; // don't call event.resolve() — sheet never opens
                 }
                 // Checkout page: check NIF threshold.

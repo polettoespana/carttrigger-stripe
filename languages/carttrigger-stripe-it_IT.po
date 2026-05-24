@@ -281,6 +281,9 @@ msgstr "Per acquisti superiori a %s, è richiesto il Codice Fiscale (NIF)."
 msgid "Go to checkout to enter it and pay with your chosen method."
 msgstr "Vai al checkout per inserirlo e pagare con il metodo scelto."
 
+msgid "Please read and accept the terms and conditions before paying."
+msgstr "Leggi e accetta i termini e le condizioni prima di procedere al pagamento."
+
 msgid "Payment completed via Stripe. PaymentIntent: %1$s. Method: %2$s."
 msgstr "Pagamento completato via Stripe. PaymentIntent: %1$s. Metodo: %2$s."
 
