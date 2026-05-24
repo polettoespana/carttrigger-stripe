@@ -383,7 +383,7 @@ msgid "For purchases over %s, a Tax ID (NIF) is required."
 msgstr ""
 
 #: includes/class-gateway.php
-msgid "Go to checkout to enter it."
+msgid "Go to checkout to enter it and pay with your chosen method."
 msgstr ""
 
 #. translators: 1: PaymentIntent ID, 2: payment method type

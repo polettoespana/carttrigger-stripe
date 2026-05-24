@@ -278,8 +278,8 @@ msgstr "Nessun addebito trovato."
 msgid "For purchases over %s, a Tax ID (NIF) is required."
 msgstr "Per acquisti superiori a %s, è richiesto il Codice Fiscale (NIF)."
 
-msgid "Go to checkout to enter it."
-msgstr "Vai al checkout per inserirlo."
+msgid "Go to checkout to enter it and pay with your chosen method."
+msgstr "Vai al checkout per inserirlo e pagare con il metodo scelto."
 
 msgid "Payment completed via Stripe. PaymentIntent: %1$s. Method: %2$s."
 msgstr "Pagamento completato via Stripe. PaymentIntent: %1$s. Metodo: %2$s."
