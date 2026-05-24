@@ -403,7 +403,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'nif_threshold'   => (int) round( floatval( $this->get_option( 'nif_invoice_threshold', 400 ) ) * 100 ),
             'i18n'            => [
                 /* translators: %s: formatted price (e.g. "400,00 €") */
-                'nif_required' => sprintf( __( 'For purchases over %s, a Tax ID (NIF) is required. Please go to the checkout.', 'carttrigger-stripe' ), wc_price( floatval( $this->get_option( 'nif_invoice_threshold', 400 ) ) ) ),
+                'nif_required'   => sprintf( __( 'For purchases over %s, a Tax ID (NIF) is required.', 'carttrigger-stripe' ), wc_price( floatval( $this->get_option( 'nif_invoice_threshold', 400 ) ) ) ),
+                'go_to_checkout' => __( 'Go to checkout to enter it.', 'carttrigger-stripe' ),
             ],
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),

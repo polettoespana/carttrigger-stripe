@@ -379,7 +379,11 @@ msgstr ""
 
 #. translators: %s: formatted price (e.g. "400,00 €")
 #: includes/class-gateway.php
-msgid "For purchases over %s, a Tax ID (NIF) is required. Please go to the checkout."
+msgid "For purchases over %s, a Tax ID (NIF) is required."
+msgstr ""
+
+#: includes/class-gateway.php
+msgid "Go to checkout to enter it."
 msgstr ""
 
 #. translators: 1: PaymentIntent ID, 2: payment method type

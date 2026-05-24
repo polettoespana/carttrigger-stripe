@@ -275,8 +275,11 @@ msgstr "No se ha encontrado ningún PaymentIntent para este pedido."
 msgid "No charge found."
 msgstr "No se ha encontrado ningún cargo."
 
-msgid "For purchases over %s, a Tax ID (NIF) is required. Please go to the checkout."
-msgstr "Para compras superiores a %s, es obligatorio introducir el NIF. Por favor, ve al checkout."
+msgid "For purchases over %s, a Tax ID (NIF) is required."
+msgstr "Para compras superiores a %s, es obligatorio introducir el NIF."
+
+msgid "Go to checkout to enter it."
+msgstr "Ve al checkout para introducirlo."
 
 msgid "Payment completed via Stripe. PaymentIntent: %1$s. Method: %2$s."
 msgstr "Pago completado a través de Stripe. PaymentIntent: %1$s. Método: %2$s."

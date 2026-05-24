@@ -1,4 +1,4 @@
-/* global ctstripe, Stripe */ /* CTStripe v1.6.7 */
+/* global ctstripe, Stripe */ /* CTStripe v1.7.0 */
 ( function ( $ ) {
     'use strict';
 
@@ -128,10 +128,16 @@
             } else {
                 // Cart / shortcode: block if over threshold — NIF required at checkout.
                 if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
-                    showError( ctstripe.i18n.nif_required );
-                    setTimeout( function () {
-                        window.location.href = ctstripe.checkout_url;
-                    }, 2500 );
+                    var $eceContainer = $( '#' + containerId );
+                    var $eceWrapper   = $eceContainer.closest( '[data-ctstripe-ece-wrapper]' );
+                    var $errorTarget  = $eceWrapper.length ? $eceWrapper : $eceContainer;
+                    var $eceError = $errorTarget.find( '.ctstripe-nif-notice' );
+                    if ( ! $eceError.length ) {
+                        $eceError = $( '<p class="ctstripe-nif-notice"></p>' ).appendTo( $errorTarget );
+                    }
+                    $eceError.html(
+                        ctstripe.i18n.nif_required + ' <a href="' + ctstripe.checkout_url + '">' + ctstripe.i18n.go_to_checkout + '</a>'
+                    );
                     return; // don't call event.resolve() — sheet never opens
                 }
             }

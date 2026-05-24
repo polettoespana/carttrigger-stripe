@@ -23,3 +23,15 @@
     text-decoration: underline;
     white-space: nowrap;
 }
+
+.ctstripe-nif-notice {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #cc0000;
+    line-height: 1.5;
+}
+
+.ctstripe-nif-notice a {
+    color: inherit;
+    text-decoration: underline;
+}
