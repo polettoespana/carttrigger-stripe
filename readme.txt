@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.6.4
+Stable tag: 1.6.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,9 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 == Changelog ==
+
+= 1.6.5 =
+* Rimosso TODO.md dalla root del plugin.
 
 = 1.6.4 =
 * Fix: aggiunto wp_unslash() e sanitize_text_field() su $_GET['section'] in enqueue_admin_scripts() — risolve i PHPCS warning WordPress.Security.ValidatedSanitizedInput.
