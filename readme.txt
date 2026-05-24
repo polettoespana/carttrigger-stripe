@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 == Changelog ==
+
+= 1.7.2 =
+* Fix: ECE amount not updated after coupon applied on cart page — woocommerce_cart_fragments hook added alongside woocommerce_update_order_review_fragments so the cart amount fragment is sent on cart page too.
+* Fix: after wc_fragments_refreshed, read updated amount from WC sessionStorage and call elems.update({ amount }) on mounted ECE containers instead of remounting.
 
 = 1.7.1 =
 * Fix: added receipt_email to PaymentIntent args (checkout and Express Checkout) — Stripe always sends the receipt to the billing email without relying on the dashboard setting.
