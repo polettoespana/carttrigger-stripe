@@ -48,139 +48,141 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 == Changelog ==
 
 = 1.7.1 =
-* Fix: aggiunto receipt_email al PaymentIntent (checkout e Express Checkout) — Stripe invia sempre la ricevuta all'email di fatturazione senza dipendere dall'impostazione dashboard.
+* Fix: added receipt_email to PaymentIntent args (checkout and Express Checkout) — Stripe always sends the receipt to the billing email without relying on the dashboard setting.
+* Fix: receipt_email only included when non-empty to avoid Stripe API errors in Express Checkout flows where the wallet may not provide an email.
+* Fix: T&C validation error now shown in #ctstripe-errors on checkout when pressing an express payment button without accepting terms.
 
 = 1.7.0 =
-* Fix: messaggio NIF nel carrello non visibile — sostituito showError() (scriveva su #ctstripe-errors che non esiste fuori dal checkout) con un notice iniettato vicino al container ECE, con link diretto al checkout.
-* Aggiunto stile .ctstripe-nif-notice in checkout.css.
+* Fix: NIF notice in cart was invisible — replaced showError() (targeting #ctstripe-errors which does not exist outside checkout) with a notice injected next to the ECE container, with a direct link to checkout.
+* Added .ctstripe-nif-notice style in checkout.css.
 
 = 1.6.9 =
-* Internazionalizzazione completa: tutte le stringhe portate in inglese e wrappate con __().
-* Aggiunto Text Domain (carttrigger-stripe) e load_plugin_textdomain().
-* Traduzione italiana (it_IT) e spagnola (es_ES) complete — .po e .mo inclusi in languages/.
-* Stringhe JS NIF passate da PHP via wp_localize_script (ctstripe.i18n).
+* Full internationalisation: all strings converted to English and wrapped with __().
+* Added Text Domain (carttrigger-stripe) and load_plugin_textdomain().
+* Complete Italian (it_IT) and Spanish (es_ES) translations — .po and .mo files included in languages/.
+* JS NIF strings passed from PHP via wp_localize_script (ctstripe.i18n).
 
 = 1.6.8 =
-* Aggiunto link "Impostazioni" nella lista plugin (porta direttamente a WooCommerce → Pagamenti → CartTrigger Stripe).
-* Aggiunto link "Sito web" nella riga meta del plugin.
+* Added "Settings" link in the plugin list (goes directly to WooCommerce → Payments → CartTrigger Stripe).
+* Added "Website" link in the plugin row meta.
 
 = 1.6.7 =
-* Nuovo: controllo NIF spostato nell'evento ECE `click` (pre-foglio) — il foglio Apple Pay/Google Pay non si apre mai se la validazione fallisce, eliminando l'esperienza negativa del foglio che si chiude.
-* Nuovo: soglia NIF (€) configurabile dall'admin nel pannello Express Checkout, invece di essere hardcoded a 400 €.
+* New: NIF check moved to ECE click event (pre-sheet) — the Apple Pay / Google Pay sheet never opens if validation fails, avoiding the negative UX of a sheet that opens and immediately closes.
+* New: NIF threshold (€) configurable from the admin panel under Express Checkout settings, replacing the hardcoded 400 € value.
 
 = 1.6.6 =
-* Fix: ECE carrello bloccato per ordini ≥ 400 € con redirect al checkout (NIF obbligatorio per legge).
-* Fix: ECE checkout bloccato se NIF vuoto per ordini ≥ 400 € — scroll al campo NIF con highlight.
-* Aggiunto checkout_url e nif_threshold (40000 centesimi) ai dati localizzati dello script.
+* Fix: ECE cart blocked for orders ≥ 400 € with redirect to checkout (NIF required by law).
+* Fix: ECE checkout blocked when NIF field is empty for orders ≥ 400 € — scroll to NIF field with highlight.
+* Added checkout_url and nif_threshold (40000 cents) to localised script data.
 
 = 1.6.4 =
-* Fix: aggiunto wp_unslash() e sanitize_text_field() su $_GET['section'] in enqueue_admin_scripts() — risolve i PHPCS warning WordPress.Security.ValidatedSanitizedInput.
+* Fix: added wp_unslash() and sanitize_text_field() on $_GET['section'] in enqueue_admin_scripts() — resolves PHPCS warning WordPress.Security.ValidatedSanitizedInput.
 
 = 1.6.3 =
-* Fix: ordini creati via ECE (Express Checkout fuori dal checkout) mostravano "Sconosciuto" come origine — aggiunto created_via=checkout a wc_create_order().
+* Fix: orders created via ECE (Express Checkout outside checkout page) showed "Unknown" as origin — added created_via=checkout to wc_create_order().
 
 = 1.6.2 =
-* Fix: ECE checkout page — i campi billing vengono popolati solo se vuoti (utente guest), senza sovrascrivere quelli precompilati dell'utente loggato.
-* Fix: normalizzazione server-side del campo stato/provincia di Apple Pay (nome completo → codice WC, es. "Madrid" → "M") tramite nuovo endpoint wc-ajax=ctstripe_normalize_state.
-* Fix: stessa normalizzazione applicata al flusso ECE carrello (ajax_create_order).
+* Fix: ECE checkout page — billing fields are populated only when empty (guest user), without overwriting pre-filled fields for logged-in users.
+* Fix: server-side normalisation of Apple Pay state/province field (full name → WC code, e.g. "Madrid" → "M") via new wc-ajax=ctstripe_normalize_state endpoint.
+* Fix: same normalisation applied to the ECE cart flow (ajax_create_order).
 
 = 1.6.1 =
-* Fix: ECE checkout page — rimossa la sovrascrittura dei campi billing con i dati di Apple Pay; l'utente loggato ha già i campi precompilati correttamente e i codici stato/provincia di Apple Pay non corrispondono ai valori delle <select> WooCommerce.
+* Fix: ECE checkout page — removed overwriting of billing fields with Apple Pay data; logged-in users already have fields correctly pre-filled and Apple Pay state codes do not match WooCommerce select values.
 
 = 1.6.0 =
-* Fix: endpoint AJAX per la creazione ordine ECE spostato da admin-ajax.php a ?wc-ajax= (WooCommerce endpoint) — risolve i 400 causati da WAF o dall'istanziazione lazy del gateway che impediva la registrazione delle hook su admin-ajax.php.
-* Fix: hook AJAX registrate a plugins_loaded invece che nel costruttore del gateway, garantendo che siano disponibili indipendentemente dall'istanziazione del gateway.
+* Fix: ECE order creation AJAX endpoint moved from admin-ajax.php to ?wc-ajax= (WooCommerce endpoint) — resolves 400 errors caused by WAF rules or lazy gateway instantiation preventing hook registration on admin-ajax.php.
+* Fix: AJAX hooks registered on plugins_loaded instead of in the gateway constructor, ensuring availability regardless of gateway instantiation.
 
 = 1.5.9 =
-* Fix: Apple Pay e Google Pay (wallet) non completavano il pagamento — stripe.confirmPayment() per i metodi wallet risolve la Promise senza redirect automatico; ora viene fatto redirect manuale al return handler con i parametri del PaymentIntent.
+* Fix: Apple Pay and Google Pay (wallet) payments were not completing — stripe.confirmPayment() for wallet methods resolves the Promise without automatic redirect; manual redirect to the return handler with PaymentIntent parameters is now performed.
 
 = 1.5.8 =
-* Fix: ECE checkout page — i campi billing WooCommerce vengono popolati da event.billingDetails (Apple Pay/Google Pay) prima di sottomettere il form, evitando il rifiuto per campi obbligatori vuoti.
+* Fix: ECE checkout page — WooCommerce billing fields are populated from event.billingDetails (Apple Pay / Google Pay) before form submission, preventing rejection due to empty required fields.
 
 = 1.5.7 =
-* Fix: coupon non applicato nell'ordine creato via AJAX da Express Checkout fuori dal checkout — i totali di riga vengono ora copiati direttamente dal carrello (stesso approccio di WC_Checkout::create_order), evitando il ricalcolo che ignorava gli sconti.
+* Fix: coupon not applied to order created via AJAX from Express Checkout outside checkout — line totals are now copied directly from the cart (same approach as WC_Checkout::create_order), avoiding recalculation that ignored discounts.
 
 = 1.5.6 =
-* Fix: testo default checkout_link accorciato in "Para otros datos, ve al checkout." per evitare overflow nel box ECE.
+* Fix: default checkout_link text shortened to avoid overflow in the ECE box.
 
 = 1.5.5 =
-* Fix: ID stabile per i container ECE nel tema (ctstripe-ece-cart / ctstripe-ece-checkout) — previene la creazione di istanze stripe.elements() multiple dopo il refresh dei fragment WooCommerce, risolvendo i fallimenti Apple Pay dal carrello.
-* Fix: validazione checkbox T&C prima dell'invio del form checkout via ECE — se non accettate, il foglio Apple Pay viene chiuso immediatamente e lo scroll va alla checkbox.
+* Fix: stable IDs for ECE containers in the theme (ctstripe-ece-cart / ctstripe-ece-checkout) — prevents multiple stripe.elements() instances being created after WooCommerce fragment refresh, resolving Apple Pay failures from the cart.
+* Fix: T&C checkbox validation before submitting the checkout form via ECE — if not accepted, the Apple Pay sheet closes immediately and the page scrolls to the checkbox.
 
 = 1.5.4 =
-* Shortcode: aggiunto attributo checkout_link — testo cliccabile che rimanda al checkout per chi vuole compilare i dati manualmente. Entrambi notice e checkout_link personalizzabili per shortcode.
+* Shortcode: added checkout_link attribute — clickable text linking to checkout for users who want to fill in details manually. Both notice and checkout_link are customisable via shortcode attributes.
 
 = 1.5.3 =
-* Nuova impostazione: toggle per abilitare/disabilitare Stripe Link, PayPal e Amazon Pay nell'Express Checkout Element (opzione paymentMethods). Klarna è controllata dal PMC nel Stripe Dashboard.
+* New setting: toggle to enable/disable Stripe Link, PayPal and Amazon Pay in the Express Checkout Element (paymentMethods option). Klarna is controlled by the PMC in the Stripe Dashboard.
 
 = 1.5.2 =
-* Nuovo: flusso diretto per Express Checkout fuori dalla pagina checkout — ordine creato via AJAX con dati billing da Apple Pay/Google Pay/Link, poi confirmPayment() chiamato direttamente senza form WC.
-* Nuovo: shortcode mostra nota informativa ("Los datos de pago...") fuori dal checkout; personalizzabile con attributo notice="...".
-* Fix: eceEvent.paymentFailed() chiamato correttamente in caso di errore per chiudere il foglio Apple Pay.
-* Fix: wrapper data-ctstripe-ece-wrapper gestisce visibilità container + nota insieme.
+* New: direct flow for Express Checkout outside the checkout page — order created via AJAX with billing data from Apple Pay / Google Pay / Link, then confirmPayment() called directly without a WC form.
+* New: shortcode displays an informational notice outside checkout; customisable with the notice="" attribute.
+* Fix: eceEvent.paymentFailed() called correctly on error to close the Apple Pay sheet.
+* Fix: data-ctstripe-ece-wrapper manages container visibility and notice together.
 
 = 1.5.1 =
-* Fix: shortcode [ctstripe_express_checkout] non renderizza nulla nella pagina carrello — Apple Pay/Google Pay funzionano solo nel checkout dove esiste il flusso di pagamento completo.
+* Fix: [ctstripe_express_checkout] shortcode rendered nothing on the cart page — Apple Pay / Google Pay only work on the checkout page where the full payment flow exists.
 
 = 1.5.0 =
-* Fix: pulsanti Express Checkout sparivano dopo aggiornamento quantità nella pagina carrello — aggiunti listener su updated_cart e wc_fragments_refreshed per reinizializzare i container svuotati da WooCommerce.
+* Fix: Express Checkout buttons disappeared after quantity update on the cart page — added listeners on updated_cart and wc_fragments_refreshed to reinitialise containers emptied by WooCommerce.
 
 = 1.4.9 =
-* Fix: pulsanti Express Checkout sparivano dopo aggiornamento quantità — riutilizzata la stessa istanza stripe.elements() invece di crearne una nuova ad ogni updated_checkout.
+* Fix: Express Checkout buttons disappeared after quantity update — reusing the same stripe.elements() instance instead of creating a new one on every updated_checkout event.
 
 = 1.4.8 =
-* Fix: pulsanti Express Checkout sparivano dopo aggiornamento quantità — ora viene fatto unmount + re-mount invece di elements.update().
+* Fix: Express Checkout buttons disappeared after quantity update — unmount + re-mount instead of elements.update().
 
 = 1.4.7 =
-* Fix: sincronizzazione importo carrello dopo applicazione coupon (leggeva data.ctstripe_cart_amount invece di data.fragments['ctstripe_cart_amount']).
+* Fix: cart amount sync after coupon application (was reading data.ctstripe_cart_amount instead of data.fragments['ctstripe_cart_amount']).
 
 = 1.4.6 =
-* Aggiunto header CORS Access-Control-Allow-Origin per domini Stripe CDN.
-* Aggiunto Permissions-Policy per camera/microfono di hCaptcha (antifraud Stripe).
+* Added CORS Access-Control-Allow-Origin header for Stripe CDN domains.
+* Added Permissions-Policy for camera/microphone required by hCaptcha (Stripe antifraud).
 
 = 1.4.5 =
-* Aggiunta impostazione "Righe massime pulsanti express": 0 = nessun limite (nessun pulsante "Más información"), valori > 0 limitano le righe visibili.
+* Added "Express button max rows" setting: 0 = no limit (no "More info" button), values > 0 limit visible rows.
 
 = 1.4.4 =
-* Ripristinato campo "Classe CSS titolo" con default font-grotesk, applicato al label WC via JS.
-* Fix: aggiunto autocomplete="new-password" sui campi Secret Key e Webhook Secret per evitare il prompt di salvataggio password del browser.
+* Restored "Title CSS class" field with font-grotesk default, applied to the WC label via JS.
+* Fix: added autocomplete="new-password" on Secret Key and Webhook Secret fields to prevent the browser password-save prompt.
 
 = 1.4.3 =
-* Rimosso campo "Classe CSS titolo" — il titolo è gestito da WooCommerce.
+* Removed "Title CSS class" field — the title is managed by WooCommerce.
 
 = 1.4.2 =
-* Il campo "Classe CSS titolo" viene ora applicato anche al label WC del gateway nel checkout.
+* "Title CSS class" is now also applied to the WC gateway label injected in checkout.
 
 = 1.4.1 =
-* Aggiunge la classe font-grotesk al label del gateway iniettato da WooCommerce.
+* Adds the font-grotesk class to the gateway label injected by WooCommerce.
 
 = 1.4.0 =
-* Impostazione layout metodi di pagamento: accordion verticale o tabs orizzontali scorrevoli.
-* Fix: titolo non più duplicato nel box di pagamento (WC lo renderizza già come label).
+* Payment method layout setting: vertical accordion or scrollable horizontal tabs.
+* Fix: title no longer duplicated in the payment box (WC already renders it as a label).
 
 = 1.3.1 =
-* Appearance: aggiunti spacingUnit, fontSizeBase e campo CSS Rules JSON per targeting componenti interni Stripe.
+* Appearance: added spacingUnit, fontSizeBase and CSS Rules JSON field for targeting internal Stripe components.
 
 = 1.3.0 =
-* Nuova card "Aspetto Payment Element": tema, colori (primario, sfondo, testo, errori), font family, border radius — configurabili dall'admin senza toccare codice.
+* New "Payment Element appearance" card: theme, colours (primary, background, text, errors), font family, border radius — configurable from the admin without touching code.
 
 = 1.2.0 =
-* Pannello admin con layout a card (coerente con gli altri plugin CartTrigger).
-* Nuove impostazioni: classe CSS per titolo e descrizione nel box di pagamento.
-* Titolo e descrizione non renderizzati se vuoti.
-* Fix: automatic_payment_methods.enabled passato come booleano (era stringa).
+* Admin panel with card layout (consistent with other CartTrigger plugins).
+* New settings: CSS class for title and description in the payment box.
+* Title and description not rendered when empty.
+* Fix: automatic_payment_methods.enabled passed as boolean (was string).
 
 = 1.1.2 =
-* Fix: ECE layout overflow impostato su 'auto' (Stripe non supporta 'never' con maxRows > 0).
+* Fix: ECE layout overflow set to 'auto' (Stripe does not support 'never' with maxRows > 0).
 
 = 1.1.1 =
-* Fix: altezza e colonne dei pulsanti express parsate come interi (wp_localize_script restituisce stringhe).
+* Fix: express button height and columns parsed as integers (wp_localize_script returns strings).
 
 = 1.1.0 =
-* Express Checkout Element (Apple Pay / Google Pay) con shortcode `[ctstripe_express_checkout]`.
-* Endpoint automatico per la verifica del dominio Apple Pay (`.well-known`).
-* Re-mount del Payment Element dopo aggiornamento AJAX del checkout WooCommerce.
-* Impostazioni per altezza e layout (colonne) dei pulsanti express.
+* Express Checkout Element (Apple Pay / Google Pay) with `[ctstripe_express_checkout]` shortcode.
+* Automatic Apple Pay domain verification endpoint (.well-known).
+* Payment Element re-mount after WooCommerce AJAX checkout update.
+* Settings for express button height and layout (columns).
 
 = 1.0.0 =
 * Initial release.
