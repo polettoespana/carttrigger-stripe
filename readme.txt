@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.6.6
+Stable tag: 1.6.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 == Changelog ==
+
+= 1.6.7 =
+* Nuovo: controllo NIF spostato nell'evento ECE `click` (pre-foglio) — il foglio Apple Pay/Google Pay non si apre mai se la validazione fallisce, eliminando l'esperienza negativa del foglio che si chiude.
+* Nuovo: soglia NIF (€) configurabile dall'admin nel pannello Express Checkout, invece di essere hardcoded a 400 €.
 
 = 1.6.6 =
 * Fix: ECE carrello bloccato per ordini ≥ 400 € con redirect al checkout (NIF obbligatorio per legge).

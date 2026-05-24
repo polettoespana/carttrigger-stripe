@@ -1,4 +1,4 @@
-/* global ctstripe, Stripe */ /* CTStripe v1.6.6 */
+/* global ctstripe, Stripe */ /* CTStripe v1.6.7 */
 ( function ( $ ) {
     'use strict';
 
@@ -103,6 +103,41 @@
             }
         } );
 
+        // Pre-sheet validation via click event — prevents the payment sheet from opening.
+        // event.resolve() MUST be called to open the sheet; not calling it cancels it silently.
+        el.on( 'click', function ( event ) {
+            if ( $( 'form.checkout' ).length ) {
+                // Checkout page: check T&C.
+                var $terms = $( '#terms' );
+                if ( $terms.length && ! $terms.is( ':checked' ) ) {
+                    $terms[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
+                    $( '.woocommerce-terms-and-conditions-checkbox-text' )
+                        .closest( '.form-row' )
+                        .addClass( 'woocommerce-invalid' );
+                    return; // don't call event.resolve() — sheet never opens
+                }
+                // Checkout page: check NIF threshold.
+                if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
+                    var $nif = $( '#billing_nif' );
+                    if ( $nif.length && $nif.val().trim() === '' ) {
+                        $nif.closest( '.form-row' ).addClass( 'woocommerce-invalid' );
+                        $nif[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
+                        return; // don't call event.resolve() — sheet never opens
+                    }
+                }
+            } else {
+                // Cart / shortcode: block if over threshold — NIF required at checkout.
+                if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
+                    showError( 'Para compras superiores a 400 € es necesario introducir el NIF. Por favor, ve al checkout.' );
+                    setTimeout( function () {
+                        window.location.href = ctstripe.checkout_url;
+                    }, 2500 );
+                    return; // don't call event.resolve() — sheet never opens
+                }
+            }
+            event.resolve(); // all checks passed — open the payment sheet
+        } );
+
         el.on( 'confirm', function ( event ) {
             eceElems = elems;
             eceEvent = event;
@@ -110,30 +145,6 @@
             console.log( '[CTStripe] confirm fired, form.checkout:', !! $( 'form.checkout' ).length );
 
             if ( $( 'form.checkout' ).length ) {
-                // Validate T&C before opening the payment sheet.
-                var $terms = $( '#terms' );
-                if ( $terms.length && ! $terms.is( ':checked' ) ) {
-                    console.log( '[CTStripe] T&C not checked — aborting ECE' );
-                    eceEvent.paymentFailed( { reason: 'fail' } );
-                    eceActive = false;
-                    $terms[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
-                    $( '.woocommerce-terms-and-conditions-checkbox-text' )
-                        .closest( '.form-row' )
-                        .addClass( 'woocommerce-invalid' );
-                    return;
-                }
-
-                // Blocca ECE se totale ≥ 400 € e campo NIF vuoto — richiede inserimento manuale.
-                if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
-                    var $nif = $( '#billing_nif' );
-                    if ( $nif.length && $nif.val().trim() === '' ) {
-                        eceEvent.paymentFailed( { reason: 'fail' } );
-                        eceActive = false;
-                        $nif.closest( '.form-row' ).addClass( 'woocommerce-invalid' );
-                        $nif[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
-                        return;
-                    }
-                }
 
                 // Popola solo i campi billing vuoti (utente guest) con i dati di Apple Pay.
                 // Per l'utente loggato i campi sono già precompilati — non vengono sovrascritti.
@@ -186,17 +197,6 @@
                     fillEmptyBillingAndSubmit( eceState );
                 }
             } else {
-                // Blocca ECE carrello se totale ≥ 400 € — NIF obbligatorio, richiede checkout completo.
-                if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
-                    eceEvent.paymentFailed( { reason: 'fail' } );
-                    eceActive = false;
-                    showError( 'Para compras superiores a 400 € es necesario introducir el NIF. Por favor, ve al checkout.' );
-                    setTimeout( function () {
-                        window.location.href = ctstripe.checkout_url;
-                    }, 2500 );
-                    return;
-                }
-
                 // Outside checkout: create order via AJAX with Apple Pay billing details.
                 console.log( '[CTStripe] calling ajax_url:', ctstripe.ajax_url );
                 $.ajax( {

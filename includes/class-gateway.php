@@ -242,6 +242,13 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'label'   => 'Mostra Amazon Pay nell\'Express Checkout',
                 'default' => 'yes',
             ],
+            'nif_invoice_threshold' => [
+                'title'             => 'Soglia NIF obbligatorio (€)',
+                'type'              => 'number',
+                'description'       => 'Importo in euro sopra il quale il NIF è obbligatorio per i pagamenti express. Imposta 0 per disabilitare. Default: 400.',
+                'default'           => '400',
+                'custom_attributes' => [ 'min' => '0', 'step' => '1' ],
+            ],
             // ── Shortcode (solo per admin_options, non nel form WC standard) ─
             'shortcode_info'     => [
                 'title'       => 'Shortcode pulsanti express',
@@ -313,7 +320,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             [
                 'title'  => 'Express Checkout',
                 'icon'   => 'dashicons-smartphone',
-                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns', 'ece_max_rows', 'ece_show_link', 'ece_show_paypal', 'ece_show_amazon_pay' ],
+                'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns', 'ece_max_rows', 'ece_show_link', 'ece_show_paypal', 'ece_show_amazon_pay', 'nif_invoice_threshold' ],
             ],
             [
                 'title'     => 'Shortcode pulsanti express',
@@ -392,7 +399,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'gateway_id'      => $this->id,
             'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
             'checkout_url'    => wc_get_checkout_url(),
-            'nif_threshold'   => 40000,
+            'nif_threshold'   => (int) round( floatval( $this->get_option( 'nif_invoice_threshold', 400 ) ) * 100 ),
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
