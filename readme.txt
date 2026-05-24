@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.6.5
+Stable tag: 1.6.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,8 +47,10 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 
 == Changelog ==
 
-= 1.6.5 =
-* Rimosso TODO.md dalla root del plugin.
+= 1.6.6 =
+* Fix: ECE carrello bloccato per ordini ≥ 400 € con redirect al checkout (NIF obbligatorio per legge).
+* Fix: ECE checkout bloccato se NIF vuoto per ordini ≥ 400 € — scroll al campo NIF con highlight.
+* Aggiunto checkout_url e nif_threshold (40000 centesimi) ai dati localizzati dello script.
 
 = 1.6.4 =
 * Fix: aggiunto wp_unslash() e sanitize_text_field() su $_GET['section'] in enqueue_admin_scripts() — risolve i PHPCS warning WordPress.Security.ValidatedSanitizedInput.

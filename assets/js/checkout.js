@@ -1,4 +1,4 @@
-/* global ctstripe, Stripe */ /* CTStripe v1.6.5 */
+/* global ctstripe, Stripe */ /* CTStripe v1.6.6 */
 ( function ( $ ) {
     'use strict';
 
@@ -123,6 +123,18 @@
                     return;
                 }
 
+                // Blocca ECE se totale ≥ 400 € e campo NIF vuoto — richiede inserimento manuale.
+                if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
+                    var $nif = $( '#billing_nif' );
+                    if ( $nif.length && $nif.val().trim() === '' ) {
+                        eceEvent.paymentFailed( { reason: 'fail' } );
+                        eceActive = false;
+                        $nif.closest( '.form-row' ).addClass( 'woocommerce-invalid' );
+                        $nif[0].scrollIntoView( { behavior: 'smooth', block: 'center' } );
+                        return;
+                    }
+                }
+
                 // Popola solo i campi billing vuoti (utente guest) con i dati di Apple Pay.
                 // Per l'utente loggato i campi sono già precompilati — non vengono sovrascritti.
                 // Lo stato/provincia viene normalizzato server-side perché Apple Pay restituisce
@@ -174,6 +186,17 @@
                     fillEmptyBillingAndSubmit( eceState );
                 }
             } else {
+                // Blocca ECE carrello se totale ≥ 400 € — NIF obbligatorio, richiede checkout completo.
+                if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
+                    eceEvent.paymentFailed( { reason: 'fail' } );
+                    eceActive = false;
+                    showError( 'Para compras superiores a 400 € es necesario introducir el NIF. Por favor, ve al checkout.' );
+                    setTimeout( function () {
+                        window.location.href = ctstripe.checkout_url;
+                    }, 2500 );
+                    return;
+                }
+
                 // Outside checkout: create order via AJAX with Apple Pay billing details.
                 console.log( '[CTStripe] calling ajax_url:', ctstripe.ajax_url );
                 $.ajax( {

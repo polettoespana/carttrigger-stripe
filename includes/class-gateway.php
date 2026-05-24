@@ -391,6 +391,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'locale'          => $this->get_stripe_locale(),
             'gateway_id'      => $this->id,
             'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
+            'checkout_url'    => wc_get_checkout_url(),
+            'nif_threshold'   => 40000,
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
