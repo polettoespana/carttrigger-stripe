@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,9 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 == Changelog ==
+
+= 1.7.1 =
+* Fix: aggiunto receipt_email al PaymentIntent (checkout e Express Checkout) — Stripe invia sempre la ricevuta all'email di fatturazione senza dipendere dall'impostazione dashboard.
 
 = 1.7.0 =
 * Fix: messaggio NIF nel carrello non visibile — sostituito showError() (scriveva su #ctstripe-errors che non esiste fuori dal checkout) con un notice iniettato vicino al container ECE, con link diretto al checkout.

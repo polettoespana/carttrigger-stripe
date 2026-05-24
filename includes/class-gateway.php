@@ -464,6 +464,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'capture_method' => $this->get_option( 'capture_mode', 'automatic' ),
                 'automatic_payment_methods' => [ 'enabled' => true ],
                 'metadata'       => [ 'order_id' => $order->get_id() ],
+                'receipt_email'  => $order->get_billing_email(),
             ];
 
             $pmc_id = $this->get_option( 'payment_method_config_id' );
@@ -617,6 +618,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'capture_method' => $this->get_option( 'capture_mode', 'automatic' ),
                 'automatic_payment_methods' => [ 'enabled' => true ],
                 'metadata'       => [ 'order_id' => $order->get_id() ],
+                'receipt_email'  => $order->get_billing_email(),
             ];
 
             $pmc = $this->get_option( 'payment_method_config_id' );
