@@ -277,7 +277,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             return;
         }
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if ( ( $_GET['section'] ?? '' ) !== $this->id ) {
+        if ( sanitize_text_field( wp_unslash( $_GET['section'] ?? '' ) ) !== $this->id ) {
             return;
         }
         wp_enqueue_style( 'ctstripe-admin', CTSTRIPE_URL . 'assets/css/admin.css', [], CTSTRIPE_VERSION );
