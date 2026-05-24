@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.6.7
+ * Version:     1.6.8
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.6.7' );
+define( 'CTSTRIPE_VERSION', '1.6.8' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -59,6 +59,22 @@ add_action( 'template_redirect', function () {
     echo $content;
     exit;
 } );
+
+$ctstripe_plugin_file = plugin_basename( __FILE__ );
+
+add_filter( 'plugin_action_links_' . $ctstripe_plugin_file, function ( $links ) {
+    $settings_url = admin_url( 'admin.php?page=wc-settings&tab=checkout&section=ctstripe' );
+    array_unshift( $links, '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Impostazioni' ) . '</a>' );
+    return $links;
+} );
+
+add_filter( 'plugin_row_meta', function ( $links, $file ) use ( $ctstripe_plugin_file ) {
+    if ( $file !== $ctstripe_plugin_file ) {
+        return $links;
+    }
+    $links[] = '<a href="https://poletto.es/nuestros-servicios/eficiencia/ct-stripe/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Sito web' ) . '</a>';
+    return $links;
+}, 10, 2 );
 
 add_action( 'plugins_loaded', function () {
     if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
