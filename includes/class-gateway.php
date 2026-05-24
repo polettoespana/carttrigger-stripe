@@ -6,7 +6,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
     public function __construct() {
         $this->id                 = 'ctstripe';
         $this->method_title       = 'CartTrigger Stripe';
-        $this->method_description = 'Stripe Payment Element — mostra automaticamente tutti i metodi abilitati nel tuo dashboard Stripe.';
+        $this->method_description = __( 'Stripe Payment Element — automatically displays all payment methods enabled in your Stripe Dashboard.', 'carttrigger-stripe' );
         $this->has_fields         = true;
         $this->supports           = [ 'products', 'refunds' ];
 
@@ -26,131 +26,133 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
     public function init_form_fields(): void {
         $this->form_fields = [
-            // ── Credenziali ──────────────────────────────────────────────────
+            // ── Credentials ──────────────────────────────────────────────────
             'enabled'            => [
-                'title'   => 'Abilita',
+                'title'   => __( 'Enable', 'carttrigger-stripe' ),
                 'type'    => 'checkbox',
-                'label'   => 'Abilita CartTrigger Stripe',
+                'label'   => __( 'Enable CartTrigger Stripe', 'carttrigger-stripe' ),
                 'default' => 'no',
             ],
             'publishable_key'    => [
-                'title' => 'Publishable Key',
+                'title' => __( 'Publishable Key', 'carttrigger-stripe' ),
                 'type'  => 'text',
             ],
             'secret_key'         => [
-                'title'             => 'Secret Key',
+                'title'             => __( 'Secret Key', 'carttrigger-stripe' ),
                 'type'              => 'password',
                 'custom_attributes' => [ 'autocomplete' => 'new-password' ],
             ],
             'webhook_secret'     => [
-                'title'             => 'Webhook Secret',
+                'title'             => __( 'Webhook Secret', 'carttrigger-stripe' ),
                 'type'              => 'password',
-                'description'       => 'Signing secret del webhook Stripe (whsec_…). Endpoint: ' . home_url( '/wc-api/ctstripe_webhook' ),
+                /* translators: %s: webhook endpoint URL */
+                'description'       => sprintf( __( 'Stripe webhook signing secret (whsec_…). Endpoint: %s', 'carttrigger-stripe' ), home_url( '/wc-api/ctstripe_webhook' ) ),
                 'custom_attributes' => [ 'autocomplete' => 'new-password' ],
             ],
             'apple_pay_domain_verification' => [
-                'title'       => 'Apple Pay – File di verifica dominio',
+                'title'       => __( 'Apple Pay – Domain Verification File', 'carttrigger-stripe' ),
                 'type'        => 'textarea',
-                'description' => 'Incolla qui il contenuto del file fornito da Stripe (<em>Dashboard → Settings → Payment methods → Apple Pay → Add domain</em>). Verrà servito automaticamente su: <code>' . esc_html( home_url( '/.well-known/apple-developer-merchantid-domain-association' ) ) . '</code><br>Dopo aver salvato, vai su <strong>Impostazioni → Permalink</strong> e clicca Salva per aggiornare le regole di riscrittura.',
+                /* translators: 1: Stripe dashboard path, 2: domain verification URL */
+                'description' => sprintf( __( 'Paste here the content of the file provided by Stripe (<em>%1$s</em>). It will be served automatically at: <code>%2$s</code><br>After saving, go to <strong>Settings → Permalinks</strong> and click Save to flush rewrite rules.', 'carttrigger-stripe' ), 'Dashboard → Settings → Payment methods → Apple Pay → Add domain', esc_html( home_url( '/.well-known/apple-developer-merchantid-domain-association' ) ) ),
                 'default'     => '',
                 'css'         => 'height:80px;font-family:monospace;font-size:11px;',
             ],
-            // ── Aspetto nel checkout ─────────────────────────────────────────
+            // ── Checkout appearance ──────────────────────────────────────────
             'title'              => [
-                'title'   => 'Titolo',
+                'title'   => __( 'Title', 'carttrigger-stripe' ),
                 'type'    => 'text',
-                'default' => 'Paga con carta o altro metodo',
+                'default' => __( 'Pay with card or other method', 'carttrigger-stripe' ),
             ],
             'title_class'        => [
-                'title'       => 'Classe CSS titolo',
+                'title'       => __( 'Title CSS class', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Classe/e CSS applicate al label del metodo di pagamento nel checkout.',
+                'description' => __( 'CSS class(es) applied to the payment method label in checkout.', 'carttrigger-stripe' ),
                 'default'     => 'font-grotesk',
             ],
             'description'        => [
-                'title'   => 'Descrizione',
+                'title'   => __( 'Description', 'carttrigger-stripe' ),
                 'type'    => 'textarea',
                 'default' => '',
             ],
             'description_class'  => [
-                'title'       => 'Classe CSS descrizione',
+                'title'       => __( 'Description CSS class', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Classe applicata al wrapper della descrizione nel box di pagamento. Lascia vuoto per nessuna classe.',
+                'description' => __( 'CSS class applied to the description wrapper in the payment box. Leave empty for no class.', 'carttrigger-stripe' ),
                 'default'     => 'ctstripe-description',
             ],
-            // ── Aspetto Payment Element ──────────────────────────────────────
+            // ── Payment Element appearance ────────────────────────────────────
             'appearance_theme'        => [
-                'title'   => 'Tema',
+                'title'   => __( 'Theme', 'carttrigger-stripe' ),
                 'type'    => 'select',
                 'options' => [
-                    'stripe' => 'Stripe (default)',
-                    'flat'   => 'Flat (senza ombre)',
-                    'none'   => 'None (solo variabili)',
+                    'stripe' => __( 'Stripe (default)', 'carttrigger-stripe' ),
+                    'flat'   => __( 'Flat (no shadows)', 'carttrigger-stripe' ),
+                    'none'   => __( 'None (variables only)', 'carttrigger-stripe' ),
                 ],
                 'default' => 'stripe',
             ],
             'appearance_color_primary'    => [
-                'title'       => 'Colore primario',
+                'title'       => __( 'Primary colour', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Colore per focus, bordi attivi, pulsanti (es. <code>#0570de</code> o <code>rgb(5,112,222)</code>).',
+                'description' => __( 'Colour for focus, active borders and buttons (e.g. <code>#0570de</code> or <code>rgb(5,112,222)</code>).', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '#0570de',
             ],
             'appearance_color_background' => [
-                'title'       => 'Colore sfondo input',
+                'title'       => __( 'Input background colour', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Sfondo dei campi di input.',
+                'description' => __( 'Background of input fields.', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '#ffffff',
             ],
             'appearance_color_text'       => [
-                'title'       => 'Colore testo',
+                'title'       => __( 'Text colour', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Testo principale nei campi.',
+                'description' => __( 'Main text colour inside fields.', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '#30313d',
             ],
             'appearance_color_danger'     => [
-                'title'       => 'Colore errori',
+                'title'       => __( 'Error colour', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Colore per messaggi di errore e bordi non validi.',
+                'description' => __( 'Colour for error messages and invalid field borders.', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '#df1b41',
             ],
             'appearance_font_family'      => [
-                'title'       => 'Font family',
+                'title'       => __( 'Font family', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Es. <code>Inter, system-ui, sans-serif</code>. Lascia vuoto per usare il font di sistema Stripe.',
+                'description' => __( 'E.g. <code>Inter, system-ui, sans-serif</code>. Leave empty to use the Stripe system font.', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '',
             ],
             'appearance_border_radius'    => [
-                'title'       => 'Border radius',
+                'title'       => __( 'Border radius', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Es. <code>4px</code>, <code>8px</code>, <code>0px</code>.',
+                'description' => __( 'E.g. <code>4px</code>, <code>8px</code>, <code>0px</code>.', 'carttrigger-stripe' ),
                 'default'     => '4px',
                 'placeholder' => '4px',
             ],
             'appearance_spacing_unit'     => [
-                'title'       => 'Spacing unit',
+                'title'       => __( 'Spacing unit', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Unità base per spaziatura interna (es. <code>4px</code>, <code>6px</code>). Lascia vuoto per default Stripe.',
+                'description' => __( 'Base spacing unit (e.g. <code>4px</code>, <code>6px</code>). Leave empty for Stripe default.', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '4px',
             ],
             'appearance_font_size_base'   => [
-                'title'       => 'Font size base',
+                'title'       => __( 'Base font size', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'Dimensione testo dei label e input (es. <code>14px</code>, <code>1rem</code>). Lascia vuoto per default Stripe.',
+                'description' => __( 'Label and input text size (e.g. <code>14px</code>, <code>1rem</code>). Leave empty for Stripe default.', 'carttrigger-stripe' ),
                 'default'     => '',
                 'placeholder' => '16px',
             ],
             'appearance_rules'            => [
-                'title'       => 'CSS Rules (JSON)',
+                'title'       => __( 'CSS Rules (JSON)', 'carttrigger-stripe' ),
                 'type'        => 'textarea',
-                'description' => 'Regole CSS avanzate in formato JSON per targetare componenti interni Stripe.<br>
-                    Selettori utili: <code>.AccordionItem</code>, <code>.Input</code>, <code>.Label</code>, <code>.Tab</code>.<br>
-                    Esempio:<br><pre style="font-size:11px;background:#f6f7f7;padding:8px;border-radius:4px;overflow:auto;">{
+                'description' => __( 'Advanced CSS rules in JSON format to target internal Stripe components.<br>
+                    Useful selectors: <code>.AccordionItem</code>, <code>.Input</code>, <code>.Label</code>, <code>.Tab</code>.<br>
+                    Example:<br><pre style="font-size:11px;background:#f6f7f7;padding:8px;border-radius:4px;overflow:auto;">{
   ".AccordionItem": {
     "border": "1px solid #e8eaed",
     "borderRadius": "6px",
@@ -164,113 +166,112 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
     "fontWeight": "600",
     "fontSize": "13px"
   }
-}</pre>',
+}</pre>', 'carttrigger-stripe' ),
                 'default'     => '',
                 'css'         => 'height:140px;font-family:monospace;font-size:11px;',
             ],
-            // ── Configurazione ───────────────────────────────────────────────
+            // ── Payment configuration ────────────────────────────────────────
             'payment_method_config_id' => [
-                'title'       => 'Payment Method Configuration ID',
+                'title'       => __( 'Payment Method Configuration ID', 'carttrigger-stripe' ),
                 'type'        => 'text',
-                'description' => 'ID del profilo Stripe (pmc_…). Lascia vuoto per usare il profilo default.',
+                'description' => __( 'Stripe profile ID (pmc_…). Leave empty to use the default profile.', 'carttrigger-stripe' ),
                 'default'     => '',
             ],
             'capture_mode'       => [
-                'title'   => 'Cattura pagamento',
+                'title'   => __( 'Payment capture', 'carttrigger-stripe' ),
                 'type'    => 'select',
                 'options' => [
-                    'automatic' => 'Automatica (immediata)',
-                    'manual'    => 'Manuale (autorizzazione + cattura)',
+                    'automatic' => __( 'Automatic (immediate)', 'carttrigger-stripe' ),
+                    'manual'    => __( 'Manual (authorise + capture)', 'carttrigger-stripe' ),
                 ],
                 'default' => 'automatic',
             ],
-            // ── Layout Payment Element ───────────────────────────────────────
+            // ── Payment method layout ────────────────────────────────────────
             'pe_layout'              => [
-                'title'   => 'Layout metodi di pagamento',
+                'title'   => __( 'Payment method layout', 'carttrigger-stripe' ),
                 'type'    => 'select',
                 'options' => [
-                    'accordion' => 'Accordion (lista verticale)',
-                    'tabs'      => 'Tabs (riga orizzontale scorrevole)',
+                    'accordion' => __( 'Accordion (vertical list)', 'carttrigger-stripe' ),
+                    'tabs'      => __( 'Tabs (scrollable horizontal row)', 'carttrigger-stripe' ),
                 ],
                 'default' => 'accordion',
             ],
             // ── Express Checkout ─────────────────────────────────────────────
             'express_in_payment_box' => [
-                'title'   => 'Pulsanti express nel box pagamento',
+                'title'   => __( 'Express buttons in payment box', 'carttrigger-stripe' ),
                 'type'    => 'checkbox',
-                'label'   => 'Mostra Apple Pay / Google Pay dentro il box metodo di pagamento',
+                'label'   => __( 'Show Apple Pay / Google Pay inside the payment method box', 'carttrigger-stripe' ),
                 'default' => 'yes',
             ],
             'ece_button_height'  => [
-                'title'             => 'Altezza pulsanti express (px)',
+                'title'             => __( 'Express button height (px)', 'carttrigger-stripe' ),
                 'type'              => 'number',
-                'description'       => 'Valore tra 40 e 55. Default: 44.',
+                'description'       => __( 'Value between 40 and 55. Default: 44.', 'carttrigger-stripe' ),
                 'default'           => '44',
                 'custom_attributes' => [ 'min' => '40', 'max' => '55', 'step' => '1' ],
             ],
             'ece_columns'        => [
-                'title'   => 'Layout pulsanti express',
+                'title'   => __( 'Express button layout', 'carttrigger-stripe' ),
                 'type'    => 'select',
                 'options' => [
-                    '2' => 'Affiancati (2 colonne)',
-                    '1' => 'In colonna (1 per riga)',
+                    '2' => __( 'Side by side (2 columns)', 'carttrigger-stripe' ),
+                    '1' => __( 'Stacked (1 per row)', 'carttrigger-stripe' ),
                 ],
                 'default' => '2',
             ],
             'ece_max_rows'       => [
-                'title'       => 'Righe massime pulsanti express',
+                'title'       => __( 'Express button max rows', 'carttrigger-stripe' ),
                 'type'        => 'number',
-                'description' => '<code>0</code> = nessun limite (mostra tutti i metodi, nessun pulsante "Más información"). Valori > 0 limitano le righe visibili.',
+                'description' => __( '<code>0</code> = no limit (shows all methods, no "More info" button). Values > 0 limit visible rows.', 'carttrigger-stripe' ),
                 'default'     => '0',
                 'custom_attributes' => [ 'min' => '0', 'step' => '1' ],
             ],
             'ece_show_link'      => [
-                'title'   => 'Stripe Link',
+                'title'   => __( 'Stripe Link', 'carttrigger-stripe' ),
                 'type'    => 'checkbox',
-                'label'   => 'Mostra Stripe Link nell\'Express Checkout',
+                'label'   => __( 'Show Stripe Link in Express Checkout', 'carttrigger-stripe' ),
                 'default' => 'yes',
             ],
             'ece_show_paypal'    => [
-                'title'   => 'PayPal',
+                'title'   => __( 'PayPal', 'carttrigger-stripe' ),
                 'type'    => 'checkbox',
-                'label'   => 'Mostra PayPal nell\'Express Checkout',
+                'label'   => __( 'Show PayPal in Express Checkout', 'carttrigger-stripe' ),
                 'default' => 'yes',
             ],
             'ece_show_amazon_pay' => [
-                'title'   => 'Amazon Pay',
+                'title'   => __( 'Amazon Pay', 'carttrigger-stripe' ),
                 'type'    => 'checkbox',
-                'label'   => 'Mostra Amazon Pay nell\'Express Checkout',
+                'label'   => __( 'Show Amazon Pay in Express Checkout', 'carttrigger-stripe' ),
                 'default' => 'yes',
             ],
             'nif_invoice_threshold' => [
-                'title'             => 'Soglia NIF obbligatorio (€)',
+                'title'             => __( 'Required NIF threshold (€)', 'carttrigger-stripe' ),
                 'type'              => 'number',
-                'description'       => 'Importo in euro sopra il quale il NIF è obbligatorio per i pagamenti express. Imposta 0 per disabilitare. Default: 400.',
+                'description'       => __( 'Amount in euros above which a NIF is required for express payments. Set to 0 to disable. Default: 400.', 'carttrigger-stripe' ),
                 'default'           => '400',
                 'custom_attributes' => [ 'min' => '0', 'step' => '1' ],
             ],
-            // ── Shortcode (solo per admin_options, non nel form WC standard) ─
+            // ── Shortcode (admin_options only, not in the standard WC form) ──
             'shortcode_info'     => [
-                'title'       => 'Shortcode pulsanti express',
+                'title'       => __( 'Express buttons shortcode', 'carttrigger-stripe' ),
                 'type'        => 'title',
-                'description' => '
-                    <p>Usa lo shortcode <code>[ctstripe_express_checkout]</code> per posizionare i pulsanti Apple Pay / Google Pay ovunque nel tema o nelle pagine WordPress.</p>
+                'description' => '<p>' . __( 'Use the shortcode <code>[ctstripe_express_checkout]</code> to place the Apple Pay / Google Pay buttons anywhere in your theme or WordPress pages.', 'carttrigger-stripe' ) . '</p>
                     <table class="widefat" style="border-collapse:collapse;">
                         <thead><tr>
-                            <th>Attributo</th>
-                            <th>Default</th>
-                            <th>Descrizione</th>
+                            <th>' . __( 'Attribute', 'carttrigger-stripe' ) . '</th>
+                            <th>' . __( 'Default', 'carttrigger-stripe' ) . '</th>
+                            <th>' . __( 'Description', 'carttrigger-stripe' ) . '</th>
                         </tr></thead>
                         <tbody>
-                            <tr><td><code>class</code></td><td>—</td><td>Classe CSS aggiuntiva sul wrapper</td></tr>
-                            <tr><td><code>style</code></td><td>—</td><td>Stile inline sul wrapper</td></tr>
+                            <tr><td><code>class</code></td><td>—</td><td>' . __( 'Additional CSS class on the wrapper', 'carttrigger-stripe' ) . '</td></tr>
+                            <tr><td><code>style</code></td><td>—</td><td>' . __( 'Inline style on the wrapper', 'carttrigger-stripe' ) . '</td></tr>
                         </tbody>
                     </table>
-                    <p style="margin-top:12px;"><strong>Esempi:</strong><br>
+                    <p style="margin-top:12px;"><strong>' . __( 'Examples:', 'carttrigger-stripe' ) . '</strong><br>
                         <code>[ctstripe_express_checkout]</code><br>
                         <code>[ctstripe_express_checkout class="my-buttons" style="margin-bottom:24px;"]</code>
                     </p>
-                    <p>Via PHP (es. <code>functions.php</code>):<br>
+                    <p>' . __( 'Via PHP (e.g. <code>functions.php</code>):', 'carttrigger-stripe' ) . '<br>
                         <code>echo do_shortcode(\'[ctstripe_express_checkout class="my-class"]\');</code>
                     </p>',
             ],
@@ -293,37 +294,37 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
     public function admin_options(): void {
         $groups = [
             [
-                'title'  => 'Credenziali',
+                'title'  => __( 'Credentials', 'carttrigger-stripe' ),
                 'icon'   => 'dashicons-lock',
                 'fields' => [ 'enabled', 'publishable_key', 'secret_key', 'webhook_secret', 'apple_pay_domain_verification' ],
             ],
             [
-                'title'  => 'Aspetto nel checkout',
+                'title'  => __( 'Checkout appearance', 'carttrigger-stripe' ),
                 'icon'   => 'dashicons-visibility',
                 'fields' => [ 'title', 'title_class', 'description', 'description_class' ],
             ],
             [
-                'title'  => 'Aspetto Payment Element',
+                'title'  => __( 'Payment Element appearance', 'carttrigger-stripe' ),
                 'icon'   => 'dashicons-art',
                 'fields' => [ 'appearance_theme', 'appearance_color_primary', 'appearance_color_background', 'appearance_color_text', 'appearance_color_danger', 'appearance_font_family', 'appearance_font_size_base', 'appearance_border_radius', 'appearance_spacing_unit', 'appearance_rules' ],
             ],
             [
-                'title'  => 'Configurazione pagamento',
+                'title'  => __( 'Payment configuration', 'carttrigger-stripe' ),
                 'icon'   => 'dashicons-admin-generic',
                 'fields' => [ 'payment_method_config_id', 'capture_mode' ],
             ],
             [
-                'title'  => 'Layout metodi di pagamento',
+                'title'  => __( 'Payment method layout', 'carttrigger-stripe' ),
                 'icon'   => 'dashicons-menu-alt',
                 'fields' => [ 'pe_layout' ],
             ],
             [
-                'title'  => 'Express Checkout',
+                'title'  => __( 'Express Checkout', 'carttrigger-stripe' ),
                 'icon'   => 'dashicons-smartphone',
                 'fields' => [ 'express_in_payment_box', 'ece_button_height', 'ece_columns', 'ece_max_rows', 'ece_show_link', 'ece_show_paypal', 'ece_show_amazon_pay', 'nif_invoice_threshold' ],
             ],
             [
-                'title'     => 'Shortcode pulsanti express',
+                'title'     => __( 'Express buttons shortcode', 'carttrigger-stripe' ),
                 'icon'      => 'dashicons-shortcode',
                 'shortcode' => true,
             ],
@@ -400,6 +401,10 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             'cart_amount'     => $this->get_stripe_amount( (float) WC()->cart->get_total( 'raw' ), get_woocommerce_currency() ),
             'checkout_url'    => wc_get_checkout_url(),
             'nif_threshold'   => (int) round( floatval( $this->get_option( 'nif_invoice_threshold', 400 ) ) * 100 ),
+            'i18n'            => [
+                /* translators: %s: formatted price (e.g. "400,00 €") */
+                'nif_required' => sprintf( __( 'For purchases over %s, a Tax ID (NIF) is required. Please go to the checkout.', 'carttrigger-stripe' ), wc_price( floatval( $this->get_option( 'nif_invoice_threshold', 400 ) ) ) ),
+            ],
             'cart_currency'   => strtolower( get_woocommerce_currency() ),
             'pmc_id'          => $this->get_option( 'payment_method_config_id', '' ),
             'pe_layout'       => $this->get_option( 'pe_layout', 'accordion' ),
@@ -438,7 +443,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         }
         if ( 'yes' === $this->get_option( 'express_in_payment_box', 'yes' ) ) {
             echo '<div id="ctstripe-express-checkout-element" data-ctstripe-ece></div>';
-            echo '<div id="ctstripe-separator" style="display:none;text-align:center;margin:16px 0;color:#6b7280;font-size:0.85em;">— ' . esc_html__( 'o paga con', 'carttrigger-stripe' ) . ' —</div>';
+            echo '<div id="ctstripe-separator" style="display:none;text-align:center;margin:16px 0;color:#6b7280;font-size:0.85em;">— ' . esc_html__( 'or pay with', 'carttrigger-stripe' ) . ' —</div>';
         }
         echo '<div id="ctstripe-payment-element" style="min-height:40px;"></div>';
         echo '<div id="ctstripe-errors" style="color:#cc0000;margin-top:8px;"></div>';
@@ -473,7 +478,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             }
 
             $order->update_meta_data( '_ctstripe_intent_id', $intent['id'] );
-            $order->update_status( 'pending', __( 'In attesa di conferma Stripe.', 'carttrigger-stripe' ) );
+            $order->update_status( 'pending', __( 'Awaiting Stripe confirmation.', 'carttrigger-stripe' ) );
             $order->save();
 
             WC()->cart->empty_cart();
@@ -500,12 +505,12 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
     public function ajax_create_order(): void {
         if ( ! check_ajax_referer( 'ctstripe_create_order', 'nonce', false ) ) {
-            wp_send_json_error( [ 'message' => 'Nonce non valido.' ] );
+            wp_send_json_error( [ 'message' => __( 'Invalid nonce.', 'carttrigger-stripe' ) ] );
             return;
         }
 
         if ( ! WC()->cart || WC()->cart->is_empty() ) {
-            wp_send_json_error( [ 'message' => 'Il carrello è vuoto.' ] );
+            wp_send_json_error( [ 'message' => __( 'Cart is empty.', 'carttrigger-stripe' ) ] );
             return;
         }
 
@@ -600,7 +605,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         $order->set_payment_method( $this->id );
         $order->set_payment_method_title( $this->title );
         $order->calculate_totals();
-        $order->update_status( 'pending', 'In attesa di conferma Stripe (Express Checkout).' );
+        $order->update_status( 'pending', __( 'Awaiting Stripe confirmation (Express Checkout).', 'carttrigger-stripe' ) );
         $order->save();
 
         try {
@@ -627,7 +632,8 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             wp_send_json_success( [ 'client_secret' => $intent['client_secret'] ] );
 
         } catch ( \Exception $e ) {
-            $order->update_status( 'failed', 'Errore Stripe: ' . $e->getMessage() );
+            /* translators: %s: Stripe error message */
+            $order->update_status( 'failed', sprintf( __( 'Stripe error: %s', 'carttrigger-stripe' ), $e->getMessage() ) );
             $order->save();
             wp_send_json_error( [ 'message' => $e->getMessage() ] );
         }
@@ -657,7 +663,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
 
     public function ajax_normalize_state(): void {
         if ( ! check_ajax_referer( 'ctstripe_create_order', 'nonce', false ) ) {
-            wp_send_json_error( [ 'message' => 'Nonce non valido.' ] );
+            wp_send_json_error( [ 'message' => __( 'Invalid nonce.', 'carttrigger-stripe' ) ] );
             return;
         }
         // phpcs:disable WordPress.Security.NonceVerification.Missing -- verified above
@@ -672,7 +678,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         $intent_id = $order->get_meta( '_ctstripe_intent_id' );
 
         if ( ! $intent_id ) {
-            return new WP_Error( 'no_intent', 'Nessun PaymentIntent trovato per questo ordine.' );
+            return new WP_Error( 'no_intent', __( 'No PaymentIntent found for this order.', 'carttrigger-stripe' ) );
         }
 
         try {
@@ -680,7 +686,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
             $charge_id = $intent['latest_charge'] ?? '';
 
             if ( ! $charge_id ) {
-                return new WP_Error( 'no_charge', 'Nessun addebito trovato.' );
+                return new WP_Error( 'no_charge', __( 'No charge found.', 'carttrigger-stripe' ) );
             }
 
             $refund_args = [ 'charge' => $charge_id ];

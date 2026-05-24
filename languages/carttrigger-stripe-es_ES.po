@@ -1,0 +1,306 @@
+# Spanish (Spain) translation for CartTrigger – Stripe
+# Copyright (C) 2025 Poletto 1976 S.L.U.
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: CartTrigger – Stripe 1.6.9\n"
+"POT-Creation-Date: 2026-05-24T00:00:00+00:00\n"
+"PO-Revision-Date: 2026-05-24T00:00:00+00:00\n"
+"Last-Translator: Poletto 1976 S.L.U. <info@poletto.es>\n"
+"Language-Team: Spanish (Spain)\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+msgid "Website"
+msgstr "Sitio web"
+
+msgid "Gateway not available."
+msgstr "Pasarela no disponible."
+
+msgid "The details saved in your selected express payment method will be used (name, address and email)."
+msgstr "Se utilizarán los datos guardados en el método de pago rápido seleccionado (nombre, dirección y email)."
+
+msgid "For other details, go to checkout."
+msgstr "Para otros datos, ve al checkout."
+
+msgid "Stripe Payment Element — automatically displays all payment methods enabled in your Stripe Dashboard."
+msgstr "Stripe Payment Element — muestra automáticamente todos los métodos de pago habilitados en tu Dashboard de Stripe."
+
+msgid "Enable"
+msgstr "Activar"
+
+msgid "Enable CartTrigger Stripe"
+msgstr "Activar CartTrigger Stripe"
+
+msgid "Publishable Key"
+msgstr "Publishable Key"
+
+msgid "Secret Key"
+msgstr "Secret Key"
+
+msgid "Webhook Secret"
+msgstr "Webhook Secret"
+
+msgid "Stripe webhook signing secret (whsec_…). Endpoint: %s"
+msgstr "Secreto de firma del webhook de Stripe (whsec_…). Endpoint: %s"
+
+msgid "Apple Pay – Domain Verification File"
+msgstr "Apple Pay – Archivo de verificación de dominio"
+
+msgid "Paste here the content of the file provided by Stripe (<em>%1$s</em>). It will be served automatically at: <code>%2$s</code><br>After saving, go to <strong>Settings → Permalinks</strong> and click Save to flush rewrite rules."
+msgstr "Pega aquí el contenido del archivo proporcionado por Stripe (<em>%1$s</em>). Se servirá automáticamente en: <code>%2$s</code><br>Tras guardar, ve a <strong>Ajustes → Enlaces permanentes</strong> y haz clic en Guardar para actualizar las reglas de reescritura."
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Pay with card or other method"
+msgstr "Pagar con tarjeta u otro método"
+
+msgid "Title CSS class"
+msgstr "Clase CSS del título"
+
+msgid "CSS class(es) applied to the payment method label in checkout."
+msgstr "Clase/s CSS aplicadas a la etiqueta del método de pago en el checkout."
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Description CSS class"
+msgstr "Clase CSS de la descripción"
+
+msgid "CSS class applied to the description wrapper in the payment box. Leave empty for no class."
+msgstr "Clase CSS aplicada al contenedor de la descripción en el box de pago. Deja vacío para ninguna clase."
+
+msgid "Theme"
+msgstr "Tema"
+
+msgid "Stripe (default)"
+msgstr "Stripe (por defecto)"
+
+msgid "Flat (no shadows)"
+msgstr "Flat (sin sombras)"
+
+msgid "None (variables only)"
+msgstr "None (solo variables)"
+
+msgid "Primary colour"
+msgstr "Color primario"
+
+msgid "Colour for focus, active borders and buttons (e.g. <code>#0570de</code> or <code>rgb(5,112,222)</code>)."
+msgstr "Color para el foco, bordes activos y botones (ej. <code>#0570de</code> o <code>rgb(5,112,222)</code>)."
+
+msgid "Input background colour"
+msgstr "Color de fondo de los campos"
+
+msgid "Background of input fields."
+msgstr "Color de fondo de los campos de entrada."
+
+msgid "Text colour"
+msgstr "Color del texto"
+
+msgid "Main text colour inside fields."
+msgstr "Color del texto principal dentro de los campos."
+
+msgid "Error colour"
+msgstr "Color de errores"
+
+msgid "Colour for error messages and invalid field borders."
+msgstr "Color para los mensajes de error y los bordes de campos no válidos."
+
+msgid "Font family"
+msgstr "Fuente tipográfica"
+
+msgid "E.g. <code>Inter, system-ui, sans-serif</code>. Leave empty to use the Stripe system font."
+msgstr "Ej. <code>Inter, system-ui, sans-serif</code>. Deja vacío para usar la fuente del sistema de Stripe."
+
+msgid "Border radius"
+msgstr "Border radius"
+
+msgid "E.g. <code>4px</code>, <code>8px</code>, <code>0px</code>."
+msgstr "Ej. <code>4px</code>, <code>8px</code>, <code>0px</code>."
+
+msgid "Spacing unit"
+msgstr "Unidad de espaciado"
+
+msgid "Base spacing unit (e.g. <code>4px</code>, <code>6px</code>). Leave empty for Stripe default."
+msgstr "Unidad base de espaciado (ej. <code>4px</code>, <code>6px</code>). Deja vacío para el valor por defecto de Stripe."
+
+msgid "Base font size"
+msgstr "Tamaño de fuente base"
+
+msgid "Label and input text size (e.g. <code>14px</code>, <code>1rem</code>). Leave empty for Stripe default."
+msgstr "Tamaño del texto de etiquetas y campos (ej. <code>14px</code>, <code>1rem</code>). Deja vacío para el valor por defecto de Stripe."
+
+msgid "CSS Rules (JSON)"
+msgstr "Reglas CSS (JSON)"
+
+msgid "Payment Method Configuration ID"
+msgstr "ID de configuración del método de pago"
+
+msgid "Stripe profile ID (pmc_…). Leave empty to use the default profile."
+msgstr "ID del perfil de Stripe (pmc_…). Deja vacío para usar el perfil por defecto."
+
+msgid "Payment capture"
+msgstr "Captura del pago"
+
+msgid "Automatic (immediate)"
+msgstr "Automática (inmediata)"
+
+msgid "Manual (authorise + capture)"
+msgstr "Manual (autorización + captura)"
+
+msgid "Payment method layout"
+msgstr "Disposición de los métodos de pago"
+
+msgid "Accordion (vertical list)"
+msgstr "Acordeón (lista vertical)"
+
+msgid "Tabs (scrollable horizontal row)"
+msgstr "Pestañas (fila horizontal desplazable)"
+
+msgid "Express buttons in payment box"
+msgstr "Botones express en el box de pago"
+
+msgid "Show Apple Pay / Google Pay inside the payment method box"
+msgstr "Mostrar Apple Pay / Google Pay dentro del box de método de pago"
+
+msgid "Express button height (px)"
+msgstr "Altura de los botones express (px)"
+
+msgid "Value between 40 and 55. Default: 44."
+msgstr "Valor entre 40 y 55. Por defecto: 44."
+
+msgid "Express button layout"
+msgstr "Disposición de los botones express"
+
+msgid "Side by side (2 columns)"
+msgstr "En paralelo (2 columnas)"
+
+msgid "Stacked (1 per row)"
+msgstr "En columna (1 por fila)"
+
+msgid "Express button max rows"
+msgstr "Filas máximas de botones express"
+
+msgid "<code>0</code> = no limit (shows all methods, no \"More info\" button). Values > 0 limit visible rows."
+msgstr "<code>0</code> = sin límite (muestra todos los métodos, sin botón \"Más información\"). Valores > 0 limitan las filas visibles."
+
+msgid "Stripe Link"
+msgstr "Stripe Link"
+
+msgid "Show Stripe Link in Express Checkout"
+msgstr "Mostrar Stripe Link en el Express Checkout"
+
+msgid "PayPal"
+msgstr "PayPal"
+
+msgid "Show PayPal in Express Checkout"
+msgstr "Mostrar PayPal en el Express Checkout"
+
+msgid "Amazon Pay"
+msgstr "Amazon Pay"
+
+msgid "Show Amazon Pay in Express Checkout"
+msgstr "Mostrar Amazon Pay en el Express Checkout"
+
+msgid "Required NIF threshold (€)"
+msgstr "Umbral de NIF obligatorio (€)"
+
+msgid "Amount in euros above which a NIF is required for express payments. Set to 0 to disable. Default: 400."
+msgstr "Importe en euros a partir del cual el NIF es obligatorio para los pagos express. Pon 0 para desactivar. Por defecto: 400."
+
+msgid "Express buttons shortcode"
+msgstr "Shortcode de botones express"
+
+msgid "Use the shortcode <code>[ctstripe_express_checkout]</code> to place the Apple Pay / Google Pay buttons anywhere in your theme or WordPress pages."
+msgstr "Usa el shortcode <code>[ctstripe_express_checkout]</code> para colocar los botones de Apple Pay / Google Pay en cualquier parte del tema o de las páginas de WordPress."
+
+msgid "Attribute"
+msgstr "Atributo"
+
+msgid "Default"
+msgstr "Por defecto"
+
+msgid "Additional CSS class on the wrapper"
+msgstr "Clase CSS adicional en el contenedor"
+
+msgid "Inline style on the wrapper"
+msgstr "Estilo en línea en el contenedor"
+
+msgid "Examples:"
+msgstr "Ejemplos:"
+
+msgid "Via PHP (e.g. <code>functions.php</code>):"
+msgstr "Vía PHP (ej. <code>functions.php</code>):"
+
+msgid "Credentials"
+msgstr "Credenciales"
+
+msgid "Checkout appearance"
+msgstr "Apariencia en el checkout"
+
+msgid "Payment Element appearance"
+msgstr "Apariencia del Payment Element"
+
+msgid "Payment configuration"
+msgstr "Configuración del pago"
+
+msgid "or pay with"
+msgstr "o paga con"
+
+msgid "Awaiting Stripe confirmation."
+msgstr "A la espera de confirmación de Stripe."
+
+msgid "Invalid nonce."
+msgstr "Nonce no válido."
+
+msgid "Cart is empty."
+msgstr "El carrito está vacío."
+
+msgid "Awaiting Stripe confirmation (Express Checkout)."
+msgstr "A la espera de confirmación de Stripe (Express Checkout)."
+
+msgid "Stripe error: %s"
+msgstr "Error de Stripe: %s"
+
+msgid "No PaymentIntent found for this order."
+msgstr "No se ha encontrado ningún PaymentIntent para este pedido."
+
+msgid "No charge found."
+msgstr "No se ha encontrado ningún cargo."
+
+msgid "For purchases over %s, a Tax ID (NIF) is required. Please go to the checkout."
+msgstr "Para compras superiores a %s, es obligatorio introducir el NIF. Por favor, ve al checkout."
+
+msgid "Payment completed via Stripe. PaymentIntent: %1$s. Method: %2$s."
+msgstr "Pago completado a través de Stripe. PaymentIntent: %1$s. Método: %2$s."
+
+msgid "Payment failed."
+msgstr "Pago fallido."
+
+msgid "Stripe: %s"
+msgstr "Stripe: %s"
+
+msgid "PaymentIntent cancelled on Stripe."
+msgstr "PaymentIntent cancelado en Stripe."
+
+msgid "Order not found."
+msgstr "Pedido no encontrado."
+
+msgid "Payment being processed (asynchronous method)."
+msgstr "Pago en proceso (método asíncrono)."
+
+msgid "Payment not completed."
+msgstr "Pago no completado."
+
+msgid "Payment failed. Please try again."
+msgstr "El pago no se ha completado. Por favor, inténtalo de nuevo."
+
+msgid "An error occurred while verifying the payment."
+msgstr "Se ha producido un error al verificar el pago."

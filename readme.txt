@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.6.8
+Stable tag: 1.6.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,12 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 == Changelog ==
+
+= 1.6.9 =
+* Internazionalizzazione completa: tutte le stringhe portate in inglese e wrappate con __().
+* Aggiunto Text Domain (carttrigger-stripe) e load_plugin_textdomain().
+* Traduzione italiana (it_IT) e spagnola (es_ES) complete — .po e .mo inclusi in languages/.
+* Stringhe JS NIF passate da PHP via wp_localize_script (ctstripe.i18n).
 
 = 1.6.8 =
 * Aggiunto link "Impostazioni" nella lista plugin (porta direttamente a WooCommerce → Pagamenti → CartTrigger Stripe).

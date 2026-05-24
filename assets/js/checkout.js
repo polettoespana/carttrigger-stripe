@@ -128,7 +128,7 @@
             } else {
                 // Cart / shortcode: block if over threshold — NIF required at checkout.
                 if ( ctstripe.nif_threshold && cartAmount() >= parseInt( ctstripe.nif_threshold, 10 ) ) {
-                    showError( 'Para compras superiores a 400 € es necesario introducir el NIF. Por favor, ve al checkout.' );
+                    showError( ctstripe.i18n.nif_required );
                     setTimeout( function () {
                         window.location.href = ctstripe.checkout_url;
                     }, 2500 );

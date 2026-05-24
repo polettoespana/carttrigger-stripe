@@ -64,7 +64,8 @@ class CTStripe_Webhook {
 
         $order->payment_complete( $intent['id'] );
         $order->add_order_note( sprintf(
-            'Pagamento completato via Stripe. PaymentIntent: %s. Metodo: %s.',
+            /* translators: 1: PaymentIntent ID, 2: payment method type */
+            __( 'Payment completed via Stripe. PaymentIntent: %1$s. Method: %2$s.', 'carttrigger-stripe' ),
             esc_html( $intent['id'] ),
             esc_html( $intent['payment_method_types'][0] ?? 'n/a' )
         ) );
@@ -76,8 +77,9 @@ class CTStripe_Webhook {
             return;
         }
 
-        $error = $intent['last_payment_error']['message'] ?? 'Pagamento fallito.';
-        $order->update_status( 'failed', 'Stripe: ' . esc_html( $error ) );
+        $error = $intent['last_payment_error']['message'] ?? __( 'Payment failed.', 'carttrigger-stripe' );
+        /* translators: %s: Stripe error message */
+        $order->update_status( 'failed', sprintf( __( 'Stripe: %s', 'carttrigger-stripe' ), esc_html( $error ) ) );
     }
 
     private function on_payment_canceled( array $intent ): void {
@@ -85,7 +87,7 @@ class CTStripe_Webhook {
         if ( ! $order ) {
             return;
         }
-        $order->update_status( 'cancelled', 'PaymentIntent annullato su Stripe.' );
+        $order->update_status( 'cancelled', __( 'PaymentIntent cancelled on Stripe.', 'carttrigger-stripe' ) );
     }
 
     private function get_order_from_intent( array $intent ): ?WC_Order {
@@ -131,7 +133,7 @@ class CTStripe_Webhook {
             $order   = $this->get_order_from_intent( $intent );
 
             if ( ! $order ) {
-                wc_add_notice( 'Ordine non trovato.', 'error' );
+                wc_add_notice( __( 'Order not found.', 'carttrigger-stripe' ), 'error' );
                 wp_safe_redirect( wc_get_checkout_url() );
                 exit;
             }
@@ -145,13 +147,13 @@ class CTStripe_Webhook {
                     exit;
 
                 case 'processing':
-                    $order->update_status( 'on-hold', 'Pagamento in elaborazione (metodo asincrono).' );
+                    $order->update_status( 'on-hold', __( 'Payment being processed (asynchronous method).', 'carttrigger-stripe' ) );
                     wp_safe_redirect( $order->get_checkout_order_received_url() );
                     exit;
 
                 case 'requires_payment_method':
-                    $order->update_status( 'failed', 'Pagamento non completato.' );
-                    wc_add_notice( 'Il pagamento non è andato a buon fine. Riprova.', 'error' );
+                    $order->update_status( 'failed', __( 'Payment not completed.', 'carttrigger-stripe' ) );
+                    wc_add_notice( __( 'Payment failed. Please try again.', 'carttrigger-stripe' ), 'error' );
                     wp_safe_redirect( wc_get_checkout_url() );
                     exit;
 
@@ -160,7 +162,7 @@ class CTStripe_Webhook {
                     exit;
             }
         } catch ( \Exception $e ) {
-            wc_add_notice( 'Errore nella verifica del pagamento.', 'error' );
+            wc_add_notice( __( 'An error occurred while verifying the payment.', 'carttrigger-stripe' ), 'error' );
             wp_safe_redirect( wc_get_checkout_url() );
             exit;
         }

@@ -2,19 +2,25 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.6.8
+ * Version:     1.6.9
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
+ * Text Domain: carttrigger-stripe
+ * Domain Path: /languages
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.6.8' );
+define( 'CTSTRIPE_VERSION', '1.6.9' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
+
+add_action( 'init', function () {
+    load_plugin_textdomain( 'carttrigger-stripe', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+} );
 
 register_activation_hook( __FILE__, function () {
     add_rewrite_rule(
@@ -64,7 +70,7 @@ $ctstripe_plugin_file = plugin_basename( __FILE__ );
 
 add_filter( 'plugin_action_links_' . $ctstripe_plugin_file, function ( $links ) {
     $settings_url = admin_url( 'admin.php?page=wc-settings&tab=checkout&section=ctstripe' );
-    array_unshift( $links, '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Impostazioni' ) . '</a>' );
+    array_unshift( $links, '<a href="' . esc_url( $settings_url ) . '">' . esc_html__( 'Settings', 'carttrigger-stripe' ) . '</a>' );
     return $links;
 } );
 
@@ -72,7 +78,7 @@ add_filter( 'plugin_row_meta', function ( $links, $file ) use ( $ctstripe_plugin
     if ( $file !== $ctstripe_plugin_file ) {
         return $links;
     }
-    $links[] = '<a href="https://poletto.es/nuestros-servicios/eficiencia/ct-stripe/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Sito web' ) . '</a>';
+    $links[] = '<a href="https://poletto.es/nuestros-servicios/eficiencia/ct-stripe/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Website', 'carttrigger-stripe' ) . '</a>';
     return $links;
 }, 10, 2 );
 
@@ -98,7 +104,7 @@ add_action( 'plugins_loaded', function () {
         if ( $gateway ) {
             $gateway->ajax_create_order();
         } else {
-            wp_send_json_error( [ 'message' => 'Gateway non disponibile.' ] );
+            wp_send_json_error( [ 'message' => __( 'Gateway not available.', 'carttrigger-stripe' ) ] );
         }
     };
     add_action( 'wc_ajax_ctstripe_create_order', $ctstripe_create_order_handler );
@@ -113,7 +119,7 @@ add_action( 'plugins_loaded', function () {
         if ( $gateway ) {
             $gateway->ajax_normalize_state();
         } else {
-            wp_send_json_error( [ 'message' => 'Gateway non disponibile.' ] );
+            wp_send_json_error( [ 'message' => __( 'Gateway not available.', 'carttrigger-stripe' ) ] );
         }
     };
     add_action( 'wc_ajax_ctstripe_normalize_state', $ctstripe_normalize_state_handler );
@@ -181,11 +187,11 @@ function ctstripe_express_checkout_shortcode( $atts ): string {
 
     $atts = shortcode_atts(
         [
-            'class'  => '',
-            'style'  => '',
-            'id'     => 'ctstripe-ece-' . wp_unique_id(),
-            'notice'        => 'Se utilizarán los datos guardados en el método de pago rápido seleccionado (nombre, dirección y email).',
-            'checkout_link' => 'Para otros datos, ve al checkout.',
+            'class'         => '',
+            'style'         => '',
+            'id'            => 'ctstripe-ece-' . wp_unique_id(),
+            'notice'        => __( 'The details saved in your selected express payment method will be used (name, address and email).', 'carttrigger-stripe' ),
+            'checkout_link' => __( 'For other details, go to checkout.', 'carttrigger-stripe' ),
         ],
         $atts,
         'ctstripe_express_checkout'
