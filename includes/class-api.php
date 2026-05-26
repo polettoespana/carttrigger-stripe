@@ -98,6 +98,8 @@ class CTStripe_API {
             $full_key = $prefix ? "{$prefix}[{$key}]" : $key;
             if ( is_array( $value ) ) {
                 $result = array_merge( $result, $this->flatten( $value, $full_key ) );
+            } elseif ( is_bool( $value ) ) {
+                $result[ $full_key ] = $value ? 'true' : 'false';
             } else {
                 $result[ $full_key ] = $value;
             }
