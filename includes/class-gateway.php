@@ -457,6 +457,13 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
     public function process_payment( $order_id ): array {
         $order = wc_get_order( $order_id );
 
+        // WooCommerce Blocks checkout: confirmation token set by context hook.
+        $blocks_token = WC()->session ? WC()->session->get( 'ctstripe_blocks_confirmation_token' ) : '';
+        if ( $blocks_token ) {
+            WC()->session->set( 'ctstripe_blocks_confirmation_token', null );
+            return $this->process_payment_blocks( $order, $blocks_token );
+        }
+
         try {
             $api  = $this->get_api();
             $args = [
@@ -496,6 +503,91 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
                 'ctstripe_client_secret' => $intent['client_secret'],
             ];
 
+        } catch ( \Exception $e ) {
+            wc_add_notice( $e->getMessage(), 'error' );
+            return [ 'result' => 'failure' ];
+        }
+    }
+
+    // ── Blocks checkout payment processing ────────────────────────────────────
+
+    private function process_payment_blocks( WC_Order $order, string $confirmation_token ): array {
+        try {
+            $api  = $this->get_api();
+            $args = [
+                'amount'             => $this->get_stripe_amount( (float) $order->get_total(), $order->get_currency() ),
+                'currency'           => strtolower( $order->get_currency() ),
+                'capture_method'     => $this->get_option( 'capture_mode', 'automatic' ),
+                'confirmation_token' => $confirmation_token,
+                'confirm'            => true,
+                'return_url'         => home_url( '/ctstripe-return' ),
+                'automatic_payment_methods' => [ 'enabled' => true ],
+                'metadata'           => [ 'order_id' => $order->get_id() ],
+            ];
+
+            $billing_email = $order->get_billing_email();
+            if ( $billing_email ) {
+                $args['receipt_email'] = $billing_email;
+            }
+
+            $pmc = $this->get_option( 'payment_method_config_id' );
+            if ( $pmc ) {
+                $args['payment_method_configuration'] = $pmc;
+                unset( $args['automatic_payment_methods'] );
+            }
+
+            $intent = $api->create_payment_intent( $args );
+            $order->update_meta_data( '_ctstripe_intent_id', $intent['id'] );
+
+            switch ( $intent['status'] ) {
+                case 'succeeded':
+                    $order->payment_complete( $intent['id'] );
+                    $order->save();
+                    WC()->cart->empty_cart();
+                    return [
+                        'result'   => 'success',
+                        'redirect' => $order->get_checkout_order_received_url(),
+                    ];
+
+                case 'processing':
+                    $order->update_status( 'on-hold', __( 'Payment being processed (asynchronous method).', 'carttrigger-stripe' ) );
+                    $order->save();
+                    WC()->cart->empty_cart();
+                    return [
+                        'result'   => 'success',
+                        'redirect' => $order->get_checkout_order_received_url(),
+                    ];
+
+                case 'requires_action':
+                    // Redirect-based 3DS or other next action.
+                    $redirect = $intent['next_action']['redirect_to_url']['url']
+                        ?? add_query_arg(
+                            [
+                                'payment_intent'               => $intent['id'],
+                                'payment_intent_client_secret' => $intent['client_secret'],
+                            ],
+                            home_url( '/ctstripe-return' )
+                        );
+                    $order->update_status( 'pending', __( 'Awaiting payment authentication.', 'carttrigger-stripe' ) );
+                    $order->save();
+                    WC()->cart->empty_cart();
+                    return [ 'result' => 'success', 'redirect' => $redirect ];
+
+                default:
+                    $order->update_status( 'pending', __( 'Awaiting Stripe confirmation.', 'carttrigger-stripe' ) );
+                    $order->save();
+                    WC()->cart->empty_cart();
+                    return [
+                        'result'   => 'success',
+                        'redirect' => add_query_arg(
+                            [
+                                'payment_intent'               => $intent['id'],
+                                'payment_intent_client_secret' => $intent['client_secret'],
+                            ],
+                            home_url( '/ctstripe-return' )
+                        ),
+                    ];
+            }
         } catch ( \Exception $e ) {
             wc_add_notice( $e->getMessage(), 'error' );
             return [ 'result' => 'failure' ];
@@ -731,7 +823,7 @@ class CTStripe_Gateway extends WC_Payment_Gateway {
         return (int) round( $amount * 100 );
     }
 
-    private function get_stripe_locale(): string {
+    public function get_stripe_locale(): string {
         $locale = get_locale();
         $map    = [
             'es_ES' => 'es',

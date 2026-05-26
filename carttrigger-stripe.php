@@ -2,7 +2,7 @@
 /**
  * Plugin Name: CartTrigger – Stripe
  * Description: Stripe Payment Element gateway for WooCommerce. Supports all payment methods enabled in your Stripe Dashboard.
- * Version:     1.7.2
+ * Version:     1.8.0
  * Author:      Poletto 1976 S.L.U.
  * Author URI:  https://poletto.es
  * License:     GPL-2.0-or-later
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CTSTRIPE_VERSION', '1.7.2' );
+define( 'CTSTRIPE_VERSION', '1.8.0' );
 define( 'CTSTRIPE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CTSTRIPE_URL', plugin_dir_url( __FILE__ ) );
 
@@ -127,6 +127,31 @@ add_action( 'plugins_loaded', function () {
     add_action( 'wp_ajax_nopriv_ctstripe_normalize_state', $ctstripe_normalize_state_handler );
 
     ( new CTStripe_Webhook() )->init();
+
+    // WooCommerce Blocks integration — purely additive, classic checkout unaffected.
+    add_action( 'woocommerce_blocks_loaded', function () {
+        if ( ! class_exists( 'Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType' ) ) {
+            return;
+        }
+        require_once CTSTRIPE_DIR . 'includes/class-blocks.php';
+        add_action(
+            'woocommerce_blocks_payment_method_type_registration',
+            function ( $registry ) {
+                $registry->register( new CTStripe_Blocks() );
+            }
+        );
+    } );
+
+    // Extract confirmation token from blocks checkout context before process_payment() runs.
+    add_action( 'woocommerce_rest_checkout_process_payment_with_context', function ( $context ) {
+        if ( ( $context->payment_method ?? '' ) !== 'ctstripe' ) {
+            return;
+        }
+        $token = sanitize_text_field( $context->payment_data['ctstripe_confirmation_token'] ?? '' );
+        if ( $token ) {
+            WC()->session->set( 'ctstripe_blocks_confirmation_token', $token );
+        }
+    }, 10, 1 );
 
     // Security headers: CSP, CORS and Permissions-Policy for Stripe + hCaptcha.
     add_filter( 'wp_headers', function ( $headers ) {
