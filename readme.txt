@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC tested up to: 10.7.0
 Requires Plugins: woocommerce
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,6 +46,10 @@ To enable Apple Pay, you need to serve a domain verification file provided by St
 4. In the Stripe Dashboard go to **Settings → Payment methods → Apple Pay** and register your domain.
 
 == Changelog ==
+
+= 1.8.1 =
+* Fix: PHP booleans serialized as 'true'/'false' strings in flatten() — Stripe form-encoded API was receiving 1/0 instead of true/false, causing "Invalid boolean" error on blocks checkout.
+* Fix: stripe-js registered directly in get_payment_method_script_handles() so WC Blocks finds the dependency at registration time instead of deactivating the payment method.
 
 = 1.8.0 =
 * New: WooCommerce Blocks checkout support — the Payment Element now works on the standard block-based checkout page (no shortcode required).

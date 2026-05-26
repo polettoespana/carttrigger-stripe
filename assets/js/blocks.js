@@ -1,4 +1,4 @@
-/* global wp, wc */ /* CTStripe v1.8.0 — WooCommerce Blocks integration */
+/* global wp, wc */ /* CTStripe v1.8.1 — WooCommerce Blocks integration */
 ( function () {
     'use strict';
 
