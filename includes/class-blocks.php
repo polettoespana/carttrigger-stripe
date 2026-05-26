@@ -17,6 +17,13 @@ class CTStripe_Blocks extends AbstractPaymentMethodType {
 
     public function get_payment_method_script_handles(): array {
         wp_register_script(
+            'stripe-js',
+            'https://js.stripe.com/v3/',
+            [],
+            null,
+            true
+        );
+        wp_register_script(
             'ctstripe-blocks',
             CTSTRIPE_URL . 'assets/js/blocks.js',
             [ 'wc-blocks-registry', 'wc-settings', 'wp-element', 'stripe-js' ],
